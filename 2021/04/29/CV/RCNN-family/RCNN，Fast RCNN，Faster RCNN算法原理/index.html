@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="[TOC] RCNN，Fast-RCNN，Faster-RCNN算法原理​    在传统的图像识别领域，图像检测一般有3个stage：1. 对输入图像使用传统数图像处理的方法，人为手动地提取图像特征；2.需要对提取的的特征进行仔细地筛选，选出有用的利于决策的特征；3.使用传统机器学习工具（如SVM），对这些特征进行分类和回归，进一步对目标进行识别。这个时期的图像识别往往需要大量的人力工程来提取和筛">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/2021/04/29/CV/RCNN-family/RCNN%EF%BC%8CFast%20RCNN%EF%BC%8CFaster%20RCNN%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="[TOC] RCNN，Fast-RCNN，Faster-RCNN算法原理​    在传统的图像识别领域，图像检测一般有3个stage：1. 对输入图像使用传统数图像处理的方法，人为手动地提取图像特征；2.需要对提取的的特征进行仔细地筛选，选出有用的利于决策的特征；3.使用传统机器学习工具（如SVM），对这些特征进行分类和回归，进一步对目标进行识别。这个时期的图像识别往往需要大量的人力工程来提取和筛">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2021/04/29/CV/RCNN-family/RCNN%EF%BC%8CFast%20RCNN%EF%BC%8CFaster%20RCNN%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/pics/3-stage.png">
+<meta property="og:image" content="http://example.com/2021/04/29/CV/RCNN-family/RCNN%EF%BC%8CFast%20RCNN%EF%BC%8CFaster%20RCNN%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/.%5Cpics%5C2-stage.png">
+<meta property="og:image" content="http://example.com/2021/04/29/CV/RCNN-family/RCNN%EF%BC%8CFast%20RCNN%EF%BC%8CFaster%20RCNN%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/.%5Cpics%5CRCNN1.png">
+<meta property="og:image" content="f:/blog/CV/RCNN系列/pics/svm.png">
+<meta property="og:image" content="f:/blog/CV/RCNN系列/pics/NMS.png">
+<meta property="og:image" content="f:/blog/CV/RCNN系列/pics/NMS-problem.png">
+<meta property="og:image" content="f:/blog/CV/RCNN系列/pics/Fast-RCNN1.png">
+<meta property="og:image" content="http://example.com/2021/04/29/CV/RCNN-family/RCNN%EF%BC%8CFast%20RCNN%EF%BC%8CFaster%20RCNN%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/.%5Cpics%5CFaster-rcnn.png">
+<meta property="og:image" content="http://example.com/2021/04/29/CV/RCNN-family/RCNN%EF%BC%8CFast%20RCNN%EF%BC%8CFaster%20RCNN%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/.%5Cpics%5Cbackbone.png">
+<meta property="og:image" content="http://example.com/2021/04/29/CV/RCNN-family/RCNN%EF%BC%8CFast%20RCNN%EF%BC%8CFaster%20RCNN%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/.%5Cpics%5CRPN.png">
+<meta property="og:image" content="f:/blog/CV/RCNN系列/pics/anchor.png">
+<meta property="og:image" content="f:/blog/CV/RCNN系列/pics/reshape1.png">
+<meta property="og:image" content="f:/blog/CV/RCNN系列/pics/Bbox-regression.png">
+<meta property="og:image" content="f:/blog/CV/RCNN系列/pics/smoothL1.png">
+<meta property="og:image" content="f:/blog/CV/RCNN系列/pics/SmoothL1.jpg">
+<meta property="article:published_time" content="2021-04-29T03:06:23.386Z">
+<meta property="article:modified_time" content="2021-03-07T16:38:01.811Z">
+<meta property="article:author" content="Cheng Zixu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/04/29/CV/RCNN-family/RCNN%EF%BC%8CFast%20RCNN%EF%BC%8CFaster%20RCNN%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/pics/3-stage.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Buscar"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Buscar"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-CV/RCNN-family/RCNN，Fast RCNN，Faster RCNN算法原理" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/04/29/CV/RCNN-family/RCNN%EF%BC%8CFast%20RCNN%EF%BC%8CFaster%20RCNN%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/" class="article-date">
+  <time class="dt-published" datetime="2021-04-29T03:06:23.386Z" itemprop="datePublished">2021-04-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>[TOC]</p>
+<h1 id="RCNN，Fast-RCNN，Faster-RCNN算法原理"><a href="#RCNN，Fast-RCNN，Faster-RCNN算法原理" class="headerlink" title="RCNN，Fast-RCNN，Faster-RCNN算法原理"></a>RCNN，Fast-RCNN，Faster-RCNN算法原理</h1><p>​    在传统的图像识别领域，图像检测一般有3个stage：1. 对输入图像使用传统数图像处理的方法，人为手动地提取图像特征；2.需要对提取的的特征进行仔细地筛选，选出有用的利于决策的特征；3.使用传统机器学习工具（如SVM），对这些特征进行分类和回归，进一步对目标进行识别。这个时期的图像识别往往需要大量的人力工程来提取和筛选图像特征，而且识别结果的精度也差强人意。        <img src="./pics/3-stage.png"></p>
+<p>​    发展到深度学习时代后，图像检测的步骤开始简化成2个stage：1.使用CNN对输入的图像自动地提取特征，称为feature map；2.使用这些feature map构建分类器和回归器，进一步实现目标检测。这样的方法不仅能减少大量的人工特征提取工程量，识别结果的精度也有很大的提升。</p>
+<p><img src=".%5Cpics%5C2-stage.png"></p>
+<p>​    下文将讲解深度学习目标检测中，two-stage（Region Proposal + cls&amp;det）的经典算法：RCNN、Fast-RCNN、Faster-RCNN的算法原理，以及提出的新思想和解决的问题。</p>
+<h2 id="一-RCNN-2014-Ross-—-深度学习图像检测开山之作"><a href="#一-RCNN-2014-Ross-—-深度学习图像检测开山之作" class="headerlink" title="一. RCNN [2014, Ross]—- 深度学习图像检测开山之作"></a>一. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1311.2524">RCNN</a> [2014, Ross]—- 深度学习图像检测开山之作</h2><h3 id="1-RCNN算法原理流程"><a href="#1-RCNN算法原理流程" class="headerlink" title="1. RCNN算法原理流程"></a>1. RCNN算法原理流程</h3><p>​    RCNN算法的流程大致分为3步：1. <strong>Region Proposal</strong>，对输入的图像提取区域候选框，每张图大概会生成2k个候选框；2. <strong>Feature Extraction</strong>，从候选框中截取图片，使用CNN计算出每个截取图片的feature map；3.<strong>Classification&amp;Detection</strong>，对feature map进行分类和检测。</p>
+<p><img src=".%5Cpics%5CRCNN1.png"></p>
+<h4 id="1）Region-Proposal"><a href="#1）Region-Proposal" class="headerlink" title="1）Region Proposal"></a>1）Region Proposal</h4><p>​    RCNN的region proposal采用的是selective search的方法，每张图片生成近2k的候选框。Selective search算法类似于一种无监督聚类，将图片相似且相邻的像素聚为一类，从而生成候选框。相似度的计算会考虑颜色、纹理等多个维度，目的是保持多样性的策略，尽可能地考虑图片的各种场景，以免漏掉要检测的目标。Selective search详细的算法原理可以参考这篇文章: <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/27467369">Selective Search</a></p>
+<p>![Selective Search](.\pics\Selective Search.png)</p>
+<p>​    之后，通过生成的候选框，去原图截取图片块，对每个图片块进行resize成统一维度大小，用于下一步送入CNN中进行计算。</p>
+<h4 id="2）Feature-Extraction"><a href="#2）Feature-Extraction" class="headerlink" title="2）Feature Extraction"></a>2）Feature Extraction</h4><p>​    用CNN提取特征部分，RCNN采用的是AlexNet网络结构。通过运算，最后每个候选区域会生成一个4096维的特征向量。</p>
+<p>![](.\pics\Feature Extraction.png)</p>
+<p>​    作者在这里运用了一些训练技巧，采用了AlexNet在ILSVRC2012的数据集ImageNet预训练好的模型参数，在真实的目标检测数据集里进行了Fine-tune。因为在ImageNet上训练的是模型识别物体种类的能力而不是预测检测框bbox位置的能力。其次，训练的每个batch大小为128，包括32个正样本和96个负样本，正负样本的生成是通过生成的候选区域与真实标签Ground Truth中的Box进行IoU运算，设置阈值threshold为0.5，IoU&gt;=0.5的便认定为正样本（物体），否则为负样本（背景）。通常正负样本的比例为1:3。</p>
+<h4 id="3）Classification-amp-Detection"><a href="#3）Classification-amp-Detection" class="headerlink" title="3）Classification&amp;Detection"></a>3）Classification&amp;Detection</h4><p>​    在传统机器学习分类器仍作为主流的年代，作者采用的是使用SVM作为RCNN的分类器，然后通过NMS算法，筛出IoU最大的那个bbox，再进行bbox regression，得到更精确的目标检测框。</p>
+<h5 id="a-SVM分类器"><a href="#a-SVM分类器" class="headerlink" title="a. SVM分类器"></a>a. SVM分类器</h5><p>​    首先为什么不直接采用AlexNet的Softmax进行分类，而另采用SVM作为分类器，作者给出的理由是AlexNet是专注于做分类的，对于bbox位置的预测不太准确。并且SVM采用的是hard negative mining的方法进行训练。hard negative就是那些容易让分类器分类错误的负样本，增大这类样本的数据量可以让模型更好地学习对目标的分类。</p>
+<p><img src="F:\blog\CV\RCNN系列\pics\svm.png"></p>
+<p>​    在训练SVM的时候，正样本采用的是Ground Truth。与CNN部分不同的是，负样本设置的阈值是IoU&lt;0.3，即与ground truth的IoU小于0.3的候选区域样本，其他的样本都忽略，这样有助于模型的收敛。在训练CNN的时候，我们需要的是更多的数据来学习提取图像的特征，但在SVM分类器中，过多的数据可能会损害模型精度，因此我们需要更难的数据，这样SVM的效果才会更好。</p>
+<h5 id="b-NMS-非极大值抑制"><a href="#b-NMS-非极大值抑制" class="headerlink" title="b. NMS - 非极大值抑制"></a>b. NMS - 非极大值抑制</h5><p>​    NMS的目的就是去除冗余的候选框，保留最好的那个。NMS算法主要步骤为：1. 对每个进行打分，在RCNN中是根据分类预测的分数来进行打分的；2.找到分数最高的候选框，其余的候选框依次与该最高分候选框进行IoU值的计算；3. 如果某个候选框的IoU值大于设定好的阈值，则丢掉这个候选框；4.在剩下的候选框中（除去之前的分数最高候选框），找到剩下的分数最高的候选框，重复以上步骤，直到所有框都是被保留下来的最高分候选框。</p>
+<p><img src="F:\blog\CV\RCNN系列\pics\NMS.png"></p>
+<h5 id="c-Bbox-Regression"><a href="#c-Bbox-Regression" class="headerlink" title="c. Bbox Regression"></a>c. Bbox Regression</h5><p>​        先留个坑，后面再补</p>
+<h3 id="2-RCNN留下的问题"><a href="#2-RCNN留下的问题" class="headerlink" title="2.RCNN留下的问题"></a>2.RCNN留下的问题</h3><h4 id="1）NMS的问题"><a href="#1）NMS的问题" class="headerlink" title="1）NMS的问题"></a>1）NMS的问题</h4><p>​    当两个物体非常接近，且区域有大部分重叠地时候，使用NMS算法筛选候选框可就出问题了。如下图所示：根据NMS算法的原理，如果蓝色候选框的分数更高，黄色的检测框将会被丢弃；若黄色候选框的分数更高，则蓝色的检测框将会被丢弃。因此要想个办法，把两个框都保留下来。</p>
+<p><img src="F:\blog\CV\RCNN系列\pics\NMS-problem.png"></p>
+<p>​        解决方法：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1704.04503.pdf">Soft-NMS</a>[2017]</li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1807.11590.pdf">IoU-Net</a>[2018, Localization Confidence + PrROI Pooling]</li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1809.08545.pdf">Softer-NMS</a>[2019, KL-Loss + Softer-NMS]</li>
+</ul>
+<h4 id="2）运行速度问题"><a href="#2）运行速度问题" class="headerlink" title="2）运行速度问题"></a>2）运行速度问题</h4><p>​    RCNN算法需要把Region Proposal生成的2000个图片，都放到CNN去处理，才算训练完一张图片，因此运行的速度还比较慢，所以也叫Slow RCNN。</p>
+<h4 id="3）SVM和Regressor的问题"><a href="#3）SVM和Regressor的问题" class="headerlink" title="3）SVM和Regressor的问题"></a>3）SVM和Regressor的问题</h4><p>​    SVM和Regressor是在CNN之后，两者是分开训练的，因此训练SVM和Regressor无法更新CNN的参数。作者后来认为这种方式挺离谱的，因此在之后的Fast-RCNN中改了过来。</p>
+<h4 id="4）训练的pipline多级且复杂"><a href="#4）训练的pipline多级且复杂" class="headerlink" title="4）训练的pipline多级且复杂"></a>4）训练的pipline多级且复杂</h4><h2 id="二-Fast-RCNN-2015-Ross"><a href="#二-Fast-RCNN-2015-Ross" class="headerlink" title="二. Fast-RCNN [2015, Ross]"></a>二. <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1504.08083.pdf">Fast-RCNN</a> [2015, Ross]</h2><h3 id="1-Fast-RCNN算法原理流程"><a href="#1-Fast-RCNN算法原理流程" class="headerlink" title="1.Fast-RCNN算法原理流程"></a>1.Fast-RCNN算法原理流程</h3><p>​    对于RCNN巡行速度过慢等问题，作者提出了基于RCNN的改善模型Fast-RCNN。其中的主要改进有：1. 将classification和detection的部分融合到CNN中，不再使用额外的SVM和Regressor，极大地减少了计算量和训练速度；2. Selective Search后不再对region proposal得到的2k个候选框进行截取输入，改用ROI Project，将region proposal映射到feature map上；3. 使用ROI pooling 算法，支持输入不同尺度的图片。</p>
+<p>​        具体的算法流程如下图，可分为B0-B5，共6个部分。</p>
+<p><img src="F:\blog\CV\RCNN系列\pics\Fast-RCNN1.png"></p>
+<h4 id="1）Region-Proposal：Same-as-RCNN"><a href="#1）Region-Proposal：Same-as-RCNN" class="headerlink" title="1）Region Proposal：Same as RCNN"></a>1）Region Proposal：Same as RCNN</h4><p>​    跟RCNN一样，Fast-RCNN采用的也是Selective Search的方法来产生Region Proposal，每张图片生成2k张图片。但是不同的是，之后不会对2k个候选区域去原图截取，后输入CNN，而是直接对原图进行一次CNN，在CNN后的feature map，通过ROI project在feature map上找到Region Proposal的位置。</p>
+<h4 id="2）Convolution-amp-ROI-Project"><a href="#2）Convolution-amp-ROI-Project" class="headerlink" title="2）Convolution &amp; ROI Project"></a>2）Convolution &amp; ROI Project</h4><p>​    就是对原图输入到CNN中去计算，Fast-RCNN的工具包提供提供了3种CNN的结构，默认是使用VGG-16作为CNN的basic structure。根据VGG-16的结构，Fast-RCNN只用了4个MaxPooling层，最后一个换成了ROI Pooling，因此，只需要对Region Proposal的在原图上的4元坐标（x, y, w, h) 除以16，并找到最近的整数，便是ROI Project在feature map上映射的坐标结果。最终得到2k个ROI。</p>
+<h4 id="3）ROI-Pooling"><a href="#3）ROI-Pooling" class="headerlink" title="3）ROI Pooling"></a>3）ROI Pooling</h4><p>​    对每一个ROI在feature map上截取后，进行ROI Pooling，就是将每个ROI截取出的块，通过MaxPooling池化到相同维度。</p>
+<h4 id="4）FC-Layers-amp-Outputs"><a href="#4）FC-Layers-amp-Outputs" class="headerlink" title="4）FC Layers &amp; Outputs"></a>4）FC Layers &amp; Outputs</h4><p>​    将每个ROI Pooling后的块，通过全连接层生成ROI特征向量，最后用一个Softmax和一个bbox regressor进行分类和回归预测，得到每个ROI的类别分数和bbox坐标。FC Layer运行消耗较多，速度较慢，作者在这里使用了SVD矩阵分解来加快了FC Layer的计算。</p>
+<h4 id="5）Multi-task-Loss"><a href="#5）Multi-task-Loss" class="headerlink" title="5）Multi-task Loss"></a>5）Multi-task Loss</h4><p>​    Fast-RCNN的两个任务，一个是分类，分为 n（种类） + 1（背景）类，使用的是Cross Entropy + Softmax的损失函数；第二个是Bbox的Localization回归，使用跟RCNN一样的基于Offset的回归，损失函数使用的是SmoothL1。</p>
+<h3 id="2-Fast-RCNN的问题"><a href="#2-Fast-RCNN的问题" class="headerlink" title="2. Fast-RCNN的问题"></a>2. Fast-RCNN的问题</h3><h4 id="1）ROI-Pooling"><a href="#1）ROI-Pooling" class="headerlink" title="1）ROI Pooling"></a>1）ROI Pooling</h4><p>​    在ROI Project中，涉及到region proposal的坐标映射变换问题，在这过程中难免会产生小数坐标。但是在feature map中的点相当于一个个的pixel，是不存在小数的，因此会将小数坐标量化成一个最近的整数，这就会造成一定的误差。在ROI Pooling中，又会有一次的量化。这样，像素坐标经过两次量化后，即使在feature map上有不到1pixel的误差，映射回原图后的误差可能会大于10pixel，这对小物体的检测非常不友好。</p>
+<p>​    解决方法：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1703.06870">ROI Align</a>  [2017, Kaiming, Mask-RCNN]</li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1807.11590.pdf">Precise ROI Pooling</a> [2018, IoU-Net]</li>
+</ul>
+<h4 id="2）"><a href="#2）" class="headerlink" title="2）"></a>2）</h4><h2 id="三-Faster-RCNN-2016-Ren"><a href="#三-Faster-RCNN-2016-Ren" class="headerlink" title="三. Faster-RCNN [2016, Ren]"></a>三. <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1506.01497.pdf">Faster-RCNN</a> [2016, Ren]</h2><h3 id="1-Faster-RCNN算法原理流程"><a href="#1-Faster-RCNN算法原理流程" class="headerlink" title="1.Faster-RCNN算法原理流程"></a>1.Faster-RCNN算法原理流程</h3><p>​    Faster-RCNN在Fast-RCNN的基础上做了两个重大的创新改进，一是在Region Proposal阶段提出了RPN（Region Proposal Network）来代替了Selective Search；二是使用到了Anchor。</p>
+<p>​    Faster-RCNN的算法结构如下图所示，可分为Backbone、RPN、Fast-RCNN三个部分。</p>
+<p><img src=".%5Cpics%5CFaster-rcnn.png"></p>
+<h4 id="1）Backbone"><a href="#1）Backbone" class="headerlink" title="1）Backbone"></a>1）Backbone</h4><p>​    Backbone的作用就是使用CNN对图片进行特征提取，有别于Fast-RCNN的是Faster-RCNN提供的Backbone有ZFNet/ResNet/VGG-16。现在主流都是用ResNet作为Backbone，不过这里作者使用VGG-16（13 conv + 13 ReLU + 4 Pooling）作为演示。输出的feature map维度为[1 x 256 x 38 x 50], 分别代表着[Batch x channel x H/16 x W/16]，其中H，W为输入网络时图片的高和宽，默认H为608，W为800。</p>
+<p><img src=".%5Cpics%5Cbackbone.png"></p>
+<h4 id="2）RPN"><a href="#2）RPN" class="headerlink" title="2）RPN"></a>2）RPN</h4><p>​    RPN是一个全卷积的神经网络，它的工作原理可以分成三个部分：classification，regression和 proposal；</p>
+<p><img src=".%5Cpics%5CRPN.png"></p>
+<h5 id="a-Classification"><a href="#a-Classification" class="headerlink" title="a. Classification"></a>a. Classification</h5><p>​    Classification部分是上图中间这条路线，将得到的feature map通过一个3x3和1x1的卷积后，输出的维度为[1 x 18 x 38 x 50]，这18个channel可以分解成2x9，2代表着是否是物体的0/1的score，9代表着9个anchors。因此，特征图维度38x50的每一个点都会生成9个anchor，每个anchor还会有0/1的score。</p>
+<p>​    Anchor是图像检测领域一个常用的结构，它可以用来表示原图中物体所在的区域，是一个以feature map上某个点为中心的矩形框。Faster-RCNN的anchor，在feature map上每个点，生成3种尺度和3种比例共9个anchor。下图是一个anchor的示意图，每个点会生成尺度为小(128×128）、中（256×256）、大（512×512），如图中红、绿、蓝色的anchor，1:1, 2:1, 1:2三种比例共9个anchor。这样充分考虑了被检测物体的大小和形状，保证物体都能由anchor生成region proposal。</p>
+<img src="F:\blog\CV\RCNN系列\pics\anchor.png" style="zoom:50%;" />
+
+<p>​    卷积完之后，会经过一层reshape将[1 x 18 x 38 x 50]的维度转成 [9 x 2 x 38 x 50]，这是为了方便Softmax做前景/背景的分类运算，如下图所示：</p>
+<img src="F:\blog\CV\RCNN系列\pics\reshape1.png" style="zoom: 33%;" />
+
+<p>​    在softmax这层，一方面所有的anchor会与ground truth做IoU运算，将IoU值作为Loss反向传播回去；另一方面对每个anchor进行分类并得到分数，用分数来选择proposal。Softmax结束后，又会有一层reshape，将数据维度转回成原来的[1 x 18 x 38 x 50]。</p>
+<h5 id="b-regression"><a href="#b-regression" class="headerlink" title="b. regression"></a>b. regression</h5><p>​    Regression部分是RPN图中的下面那一条分支，原理和Classification部分差不多，feature map通过一个3x3和1x1的卷积后，输出的维度为[1 x 36 x 38 x 50]，其中36个channel可以分成9x4，9就是跟cls部分一样的9个anchor，4是网络根据anchor生成的bbox的4元坐标target的offset。通过offset做bbox regression，再通过下图公式的计算，算出预测bbox的4元坐标（x, y, w, h）来生成region proposal。</p>
+<img src="F:\blog\CV\RCNN系列\pics\Bbox-regression.png"/>
+
+<p>​    在这里 Bbox Regression采用损失函数是Smooth L1Loss，本质上就是L1 Loss 和 L2 Loss的结合。对比于L1 Loss 和 L2 Loss，Smooth L1 Loss可以从两方面限制梯度：(1) 当预测框与ground truth的Loss很大的时候，梯度不至于像L2 Loss 那样过大；(2) 当预测框与ground truth的Loss较小的时候，梯度值比L1 Loss更小，不至于跳出局部最优解。</p>
+<p><img src="F:\blog\CV\RCNN系列\pics\smoothL1.png"></p>
+<img src="F:\blog\CV\RCNN系列\pics\SmoothL1.jpg" style="zoom: 80%;" />
+
+<h5 id="c-Proposal"><a href="#c-Proposal" class="headerlink" title="c. Proposal"></a>c. Proposal</h5><p>​    将<strong>a</strong>, <strong>b</strong> 部分的结果综合计算，便可以得出Region Proposal。若anchor的IoU &gt; 0.7，就认为是前景，若 IoU &lt; 0.3，就认为是背景，其他的anchor全都忽略。一般来说，前景和背景的anchor保留的比例为1:3 。</p>
+<h4 id="3）ROI-Fast-RCNN"><a href="#3）ROI-Fast-RCNN" class="headerlink" title="3）ROI + Fast-RCNN"></a>3）ROI + Fast-RCNN</h4><p>​    之后的部分就跟Fast RCNN一样的操作了，进行ROI Pooling 后进行cls 和 reg。</p>
+<h3 id="2-Faster-RCNN训练方法"><a href="#2-Faster-RCNN训练方法" class="headerlink" title="2. Faster-RCNN训练方法"></a>2. Faster-RCNN训练方法</h3><h4 id="1）经典的训练方法"><a href="#1）经典的训练方法" class="headerlink" title="1）经典的训练方法"></a>1）经典的训练方法</h4><p>​    经典的Faster-RCNN训练方法可分为四步：</p>
+<ul>
+<li><ol>
+<li>使用在 ImageNet pretrained的参数模型来 Fine-tune 训练 Backbone 和 RPN；</li>
+</ol>
+</li>
+<li><ol start="2">
+<li>使用第1步训练后生成的region proposal，来训练 Fast-RCNN;</li>
+</ol>
+</li>
+<li><ol start="3">
+<li>使用第2步生成的检测结果去初始化训练RPN网络，Backbone不参与训练；</li>
+</ol>
+</li>
+<li><ol start="4">
+<li>使用第3步训练后的RPN在再生成region proposal，用来Fine-tune Fast-RCNN；</li>
+</ol>
+</li>
+</ul>
+<h4 id="2）其他方法"><a href="#2）其他方法" class="headerlink" title="2）其他方法"></a>2）其他方法</h4><p>​    其他方法就是…直接把Faster-RCNN当一个整体，做一个end-to-end的一步训练。</p>
+<h3 id="3-相关源码"><a href="#3-相关源码" class="headerlink" title="3.相关源码"></a>3.相关源码</h3>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/04/29/CV/RCNN-family/RCNN%EF%BC%8CFast%20RCNN%EF%BC%8CFaster%20RCNN%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/" data-id="cko2b3cuu0008p4vcc0vhh699" data-title="" class="article-share-link">Compartir</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/04/29/CV/train/data-preprocessing/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Nuevo</strong>
+      <div class="article-nav-title">
+        
+          (no title)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/04/29/CV/facebagnet&attention/SENet/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Viejo</strong>
+      <div class="article-nav-title"></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archivos</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Posts recientes</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/04/29/CV/YOLO/Yolo%E7%B3%BB%E5%88%97%E6%A3%80%E6%B5%8B%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/train/model-train/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/train/data-preprocessing/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/RCNN-family/RCNN%EF%BC%8CFast%20RCNN%EF%BC%8CFaster%20RCNN%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/facebagnet&attention/SENet/">(no title)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 Cheng Zixu<br>
+      Construido por <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="遮挡人脸识别的Attention机制数据获取 生成； 真实数据  相关attention模型1. SENet如何生成attention权重矩阵我们可以通过神经网络生成，这是因为：每个channel的重要程度与最终的任务决定的，而任务与loss有关，所以权重可以在训练过程中生成。因此在训练过程中，每个feature map 和它在最终任务中的权重可以由一个神经网络建立函数关系，便可以生成其权重。 于">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/2021/04/29/CV/facebagnet&attention/attention/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="遮挡人脸识别的Attention机制数据获取 生成； 真实数据  相关attention模型1. SENet如何生成attention权重矩阵我们可以通过神经网络生成，这是因为：每个channel的重要程度与最终的任务决定的，而任务与loss有关，所以权重可以在训练过程中生成。因此在训练过程中，每个feature map 和它在最终任务中的权重可以由一个神经网络建立函数关系，便可以生成其权重。 于">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="f:/blog/CV/facebagnet&attention/img/image-20210223142843988.png">
+<meta property="og:image" content="f:/blog/CV/facebagnet&attention/img/image-20210223143738317.png">
+<meta property="og:image" content="f:/blog/CV/facebagnet&attention/img/cbam.png">
+<meta property="og:image" content="f:/blog/CV/facebagnet&attention/img/cam.png">
+<meta property="og:image" content="f:/blog/CV/facebagnet&attention/img/formula.png">
+<meta property="og:image" content="f:/blog/CV/facebagnet&attention/img/sam.png">
+<meta property="og:image" content="f:/blog/CV/facebagnet&attention/img/formula2.png">
+<meta property="og:image" content="f:/blog/CV/facebagnet&attention/img/ResBlock+CBAM.png">
+<meta property="article:published_time" content="2021-04-29T03:06:22.821Z">
+<meta property="article:modified_time" content="2021-03-16T06:22:12.079Z">
+<meta property="article:author" content="Cheng Zixu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="f:/blog/CV/facebagnet&attention/img/image-20210223142843988.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Buscar"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Buscar"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-CV/facebagnet&amp;attention/attention" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/04/29/CV/facebagnet&attention/attention/" class="article-date">
+  <time class="dt-published" datetime="2021-04-29T03:06:22.821Z" itemprop="datePublished">2021-04-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="遮挡人脸识别的Attention机制"><a href="#遮挡人脸识别的Attention机制" class="headerlink" title="遮挡人脸识别的Attention机制"></a>遮挡人脸识别的Attention机制</h1><h2 id="数据获取"><a href="#数据获取" class="headerlink" title="数据获取"></a>数据获取</h2><ol>
+<li>生成；</li>
+<li>真实数据</li>
+</ol>
+<h2 id="相关attention模型"><a href="#相关attention模型" class="headerlink" title="相关attention模型"></a>相关attention模型</h2><h3 id="1-SENet"><a href="#1-SENet" class="headerlink" title="1. SENet"></a>1. SENet</h3><h4 id="如何生成attention权重矩阵"><a href="#如何生成attention权重矩阵" class="headerlink" title="如何生成attention权重矩阵"></a>如何生成attention权重矩阵</h4><p>我们可以通过神经网络生成，这是因为：每个channel的重要程度与最终的任务决定的，而任务与loss有关，所以权重可以在训练过程中生成。因此在训练过程中，每个feature map 和它在最终任务中的权重可以由一个神经网络建立函数关系，便可以生成其权重。</p>
+<p>于是我们的任务转到如何设计这个神经网络。</p>
+<p>最常用的思路是对feature map每个channel进行global pooling -&gt; FC1 -&gt; ReLU -&gt; FC2 -&gt; Sigmoid，其中FC1和ReLU的维度是1x1x(C/r)，其他层的维度都是1x1xC。这样一个类似于bottleneck的结构被实验认为在生成attention权重中是有效的。这就是SENet（Squeeze-and-Excitation Networks）的模型结构。</p>
+<img src="F:/blog/CV/facebagnet&attention/img/image-20210223142843988.png" alt="image-20210223142843988" style="zoom:25%;" />
+
+<h4 id="SE-ResNet"><a href="#SE-ResNet" class="headerlink" title="SE-ResNet"></a>SE-ResNet</h4><p>SE-ResNet，就是SENet在ResNet上的应用，如下图所示，在Residual模块的基础上再加上了SENet的模块。通过SENet计算每个channel的权重后，再与原来的每个channel相乘，这样就得到了SE-ResNet的整个模块。</p>
+<img src="F:/blog/CV/facebagnet&attention/img/image-20210223143738317.png" alt="image-20210223143738317" style="zoom:33%;" />
+
+<h4 id="SENet的改进思路"><a href="#SENet的改进思路" class="headerlink" title="SENet的改进思路"></a>SENet的改进思路</h4><p>​    后来有人做实验为了改进SENet，增加MaxPooling，去掉ReLU，实验得到的效果更好了，由这个思路得到了的CBAM。</p>
+<h3 id="2-CBAM-——-Convolutional-Block-Attention-Module"><a href="#2-CBAM-——-Convolutional-Block-Attention-Module" class="headerlink" title="2. CBAM —— Convolutional Block Attention Module"></a>2. CBAM —— Convolutional Block Attention Module</h3><p>CBAM的结构如图所示，包含Channel Attention和Spatial Attention两个模块，这两个模块的计算原理是先通过输入的特征图提取Channel Attention(Mc)，再用相乘后的Feature提取Spatial Attention(Ms)，相乘后就得到了包含注意力的Refined Feature Map 。Input Feature Map的维度是512x512x64。</p>
+<p><img src="F:\blog\CV\facebagnet&attention\img\cbam.png"></p>
+<p>Channel Attention Module的具体结构如下，输入的feature map以channel为维度分别进行MaxPooling和AVGPooling，最后得到两个64维的feature 向量后经过MLP，最后将两个向量进行相加融合后经过Sigmoid得到channel attention，即Mc。其中Shared MLP 为64-&gt;32-&gt;64的FC层。</p>
+<p><img src="F:\blog\CV\facebagnet&attention\img\cam.png"></p>
+<p>其计算公式如下：</p>
+<p><img src="F:\blog\CV\facebagnet&attention\img\formula.png"></p>
+<p>Spatial Attention Module的具体结构如下，与上面的类似，输入的feature map以每个空间点为维度分别进行MaxPooling和AVGPooling，输出两个一个512x512的attention map，对两个attention map进行concat后，然后通过7x7的卷积核进行特征融合，最后通过Sigmoid得到一个跟feature map相同大小的Attention map，即Ms。</p>
+<img src="F:\blog\CV\facebagnet&attention\img\sam.png" style="zoom: 33%;" />
+
+<p>其计算公式如下：</p>
+<img src="F:\blog\CV\facebagnet&attention\img\formula2.png" style="zoom: 33%;" />
+
+<p>为什么不是先Spatial再Channel？为什么不同时得到Mc和Ms？作者做实验得到的结果显示，这样效果最好，理论没法解释…这也是一个后续研究的方向。</p>
+<p>将CBAM与ResBlock相结合的结构如下图，在每层卷积的后面加上CBAM。</p>
+<p><img src="F:\blog\CV\facebagnet&attention\img\ResBlock+CBAM.png"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/04/29/CV/facebagnet&attention/attention/" data-id="cko2b3cv5000hp4vcemvzeo65" data-title="" class="article-share-link">Compartir</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/04/29/CV/facebagnet&attention/FaceBagNet/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Nuevo</strong>
+      <div class="article-nav-title">
+        
+          (no title)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/04/29/CV/face-recognize/SDK/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Viejo</strong>
+      <div class="article-nav-title"></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archivos</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Posts recientes</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/04/29/CV/YOLO/Yolo%E7%B3%BB%E5%88%97%E6%A3%80%E6%B5%8B%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/train/model-train/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/train/data-preprocessing/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/RCNN-family/RCNN%EF%BC%8CFast%20RCNN%EF%BC%8CFaster%20RCNN%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/facebagnet&attention/SENet/">(no title)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 Cheng Zixu<br>
+      Construido por <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

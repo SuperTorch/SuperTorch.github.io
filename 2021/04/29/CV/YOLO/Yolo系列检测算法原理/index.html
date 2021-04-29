@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="[TOC] Yolo系列检测算法原理​    当two-stage（proposal + detection）系列的算法在目标检测界大展身手的时候，不禁会有人问道：”Why we have to train proposal first ? “。于是，便有学者展开了关于one-stage算法的研究，希望能研究出比two-stage运算效率更快的one-stage算法。 ​    于是 Yolo 就">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/2021/04/29/CV/YOLO/Yolo%E7%B3%BB%E5%88%97%E6%A3%80%E6%B5%8B%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="[TOC] Yolo系列检测算法原理​    当two-stage（proposal + detection）系列的算法在目标检测界大展身手的时候，不禁会有人问道：”Why we have to train proposal first ? “。于是，便有学者展开了关于one-stage算法的研究，希望能研究出比two-stage运算效率更快的one-stage算法。 ​    于是 Yolo 就">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="f:/blog/CV/YOLO系列/pics/YOLOv1.png">
+<meta property="og:image" content="f:/blog/CV/YOLO系列/pics/YOLOv1-2.png">
+<meta property="og:image" content="f:/blog/CV/YOLO系列/pics/YOLOv1-cnn.png">
+<meta property="og:image" content="f:/blog/CV/YOLO系列/pics/loss1.png">
+<meta property="og:image" content="f:/blog/CV/YOLO系列/pics/loss2.png">
+<meta property="og:image" content="f:/blog/CV/YOLO系列/pics/loss3.png">
+<meta property="og:image" content="f:/blog/CV/YOLO系列/pics/YOLOv2.jpg">
+<meta property="og:image" content="f:/blog/CV/YOLO系列/pics/YOLOv2-anchor.png">
+<meta property="og:image" content="f:/blog/CV/YOLO系列/pics/reorg.png">
+<meta property="og:image" content="f:/blog/CV/YOLO系列/pics/mixup.png">
+<meta property="og:image" content="f:/blog/CV/YOLO系列/pics/cutout.png">
+<meta property="og:image" content="f:/blog/CV/YOLO系列/pics/cutmix.png">
+<meta property="og:image" content="f:/blog/CV/YOLO系列/pics/label-smoothing.png">
+<meta property="og:image" content="f:/blog/CV/YOLO系列/pics/dropblock.png">
+<meta property="article:published_time" content="2021-04-29T03:06:25.608Z">
+<meta property="article:modified_time" content="2021-02-25T10:12:24.682Z">
+<meta property="article:author" content="Cheng Zixu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="f:/blog/CV/YOLO系列/pics/YOLOv1.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Buscar"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Buscar"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-CV/YOLO/Yolo系列检测算法原理" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/04/29/CV/YOLO/Yolo%E7%B3%BB%E5%88%97%E6%A3%80%E6%B5%8B%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/" class="article-date">
+  <time class="dt-published" datetime="2021-04-29T03:06:25.608Z" itemprop="datePublished">2021-04-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>[TOC]</p>
+<h1 id="Yolo系列检测算法原理"><a href="#Yolo系列检测算法原理" class="headerlink" title="Yolo系列检测算法原理"></a>Yolo系列检测算法原理</h1><p>​    当two-stage（proposal + detection）系列的算法在目标检测界大展身手的时候，不禁会有人问道：”Why we have to train proposal first ? “。于是，便有学者展开了关于one-stage算法的研究，希望能研究出比two-stage运算效率更快的one-stage算法。</p>
+<p>​    于是 Yolo 就这么诞生了，作者Joseph还挺有个性的，起名Yolo意思是” You Only Look Once ! “，它可以一次新预测多个Bbox的位置和类别，并且实现了end-to-end的检测和识别。它的运算速度Yolo算法经过一系列的发展，已经发展到了 V5 版本，也推动了One Stage Detection算法的发展。</p>
+<h2 id="一-YOLO-V1-2015-Joseph"><a href="#一-YOLO-V1-2015-Joseph" class="headerlink" title="一. YOLO V1 [2015, Joseph]"></a>一. <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1506.02640.pdf">YOLO V1</a> [2015, Joseph]</h2><h3 id="1-YOLO-V1算法流程及原理"><a href="#1-YOLO-V1算法流程及原理" class="headerlink" title="1. YOLO V1算法流程及原理"></a>1. YOLO V1算法流程及原理</h3><p>​    YOLO V1算法流程如下图，主要步骤为：1）将输入图片划分成SxS的cell；2）通过CNN计算，预测出Bbox以及Confidence，同时对预测存在物体的Bbox计算后验概率；3）将前两步的计算结果结合起来便可以得到检测结果。</p>
+<p><img src="F:\blog\CV\YOLO系列\pics\YOLOv1.png"></p>
+<h4 id="1）将输入的图片划分成SxS的cell"><a href="#1）将输入的图片划分成SxS的cell" class="headerlink" title="1）将输入的图片划分成SxS的cell"></a>1）将输入的图片划分成SxS的cell</h4><p>​    首先将输入的图片划分成SxS的cell（在这里为7x7的cell），若某个物体的ground truth的中心点（x，y）落在这49个cell的某个内，则这个cell只负责预测这个物体，不会预测其他物体，且其他48个cell都不会预测这个物体。</p>
+<p><img src="F:\blog\CV\YOLO系列\pics\YOLOv1-2.png"></p>
+<p>​    如上图，红色的cell只负责预测汽车，不会负责预测小狗和自行车，而蓝色和黄色的cell也都不负责预测汽车。同理蓝色和黄色的cell只负责预测小狗和自行车。</p>
+<h4 id="2）CNN预测Bbox"><a href="#2）CNN预测Bbox" class="headerlink" title="2）CNN预测Bbox"></a>2）CNN预测Bbox</h4><p>​    将输入图片划分成7x7的cell后，在图片经过CNN的运算后，每个cell都会预测B个Bbox和Bbox的confidence，即每个预测Bbox都有5个参数，即Bbox的四元坐标(x, y, w, h)，和该Bbox的confidence。在这里confidence。这里confidence的计算公式为( Pr(Object) * IOU(pred|truth) )，其中Pr(Object)指的是这个cell中是否有ground truth的中心点，存在则值为1，否则为0；IOU(pred|truth)便是预测的Bbox和ground truth计算的IoU值。若数据集中的检测物体有C个分类，于是每一个cell都会预测一次cell中物体属于某一类别的后验概率，即：Pr(Class_i|Object), i=1,2,…,C。而这个Cell中的B个预测的Bbox都会共享这个后验概率。</p>
+<p>​    如果每个网格预测2个Bbox (B=2)，有20类待检测的目标（C=20），则相当于最终CNN预测的输出为一个长度为SxSx(Bxx5+C)=7x7x30的向量，从而完成检测+识别任务。</p>
+<p>​    YOLO V1的网络结构如下，借鉴了LeNet的思想，但又有些细节改变。使用了24个卷积层，2个全连接层，不同的是用1×1的reduction layers紧跟3×3的convolutional layers取代了Lenet的inception modules 。</p>
+<p><img src="F:\blog\CV\YOLO系列\pics\YOLOv1-cnn.png"></p>
+<p>​    在检测的时候，每个cell的后验概率和confidence相乘，即Pr(Class_i|Object) * [Pr(Object) * IOU(pred|truth)] = Pr(Class_i) * IOU(pred|truth)，得到的结果是每个Bbox对每个类别的confidence score。最后通过阈值，去掉confidence score比较低的检测框，再通过NMS去掉冗余的检测框，就完成了检测。</p>
+<h3 id="2-YOLO-V1的损失函数"><a href="#2-YOLO-V1的损失函数" class="headerlink" title="2. YOLO V1的损失函数"></a>2. YOLO V1的损失函数</h3><p>​    YOLO V1的损失函数分为3个部分：预测Bbox坐标的损失函数、预测Bbox置信度的损失函数和分类的损失函数。</p>
+<p><img src="F:\blog\CV\YOLO系列\pics\loss1.png"></p>
+<p><img src="F:\blog\CV\YOLO系列\pics\loss2.png"></p>
+<p><img src="F:\blog\CV\YOLO系列\pics\loss3.png"></p>
+<h3 id="3-YOLO-V1的问题"><a href="#3-YOLO-V1的问题" class="headerlink" title="3. YOLO V1的问题"></a>3. YOLO V1的问题</h3><p>​    毕竟是YOLO的第一个版本，虽然检测速度有了很大的提升，但存在着一些待解决的问题。</p>
+<p>1）对靠近的物体检测不理想</p>
+<p>​    毕竟只有7x7共49个cell，每个cell只预测一个物体，因此对于拥挤靠近的物体，它们的ground truth中心可能在同一个cell中，导致了预测效果不太理想。</p>
+<p>2）对小物体检测不理想</p>
+<p>​    好像是因为损失函数设计的原因</p>
+<p>3）对同一类别不同长宽比的物体检测不理想</p>
+<p>​    没用到anchor的锅…</p>
+<p>4）没用到BN层</p>
+<h2 id="二-YOLO-V2-2016-Joseph"><a href="#二-YOLO-V2-2016-Joseph" class="headerlink" title="二. YOLO V2 [2016, Joseph]"></a>二. <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1612.08242.pdf">YOLO V2</a> [2016, Joseph]</h2><p>​    YOLO V2针对上一版本留下的问题，一一作出了解决：加了BN层、加了anchor、改成FCN结构可以多尺度训练等…</p>
+<h3 id="1-YOLO-V2的改进策略"><a href="#1-YOLO-V2的改进策略" class="headerlink" title="1. YOLO V2的改进策略"></a>1. YOLO V2的改进策略</h3><p>​    从下图可以看到YOLO V2在前一个版本的基础上增加了不少优化技巧，每个技巧都能让识别精度相比于第一个版本有着不少的提高</p>
+<p><img src="F:\blog\CV\YOLO系列\pics\YOLOv2.jpg"></p>
+<h4 id="1）Batch-Normalization"><a href="#1）Batch-Normalization" class="headerlink" title="1）Batch Normalization"></a>1）Batch Normalization</h4><p>​    在CNN进行运算的时候，每次卷积层过后输入的数据分布会一直在改变，这会使得训练的难度增大。BN层的原理就是将卷积过后的batch的输入重新规范化到均值为0，方差为1的标准正太分布。它能加快网络的训练速度和模型的收敛，同时有助于模型的正则化，可以舍弃掉dropout的同时防止模型的过拟合。YOLO V2的网络结构在每个卷积层后面都加了Batch Normalization。</p>
+<h4 id="2）High-Resolution-Classifier"><a href="#2）High-Resolution-Classifier" class="headerlink" title="2）High Resolution Classifier"></a>2）High Resolution Classifier</h4><p>​    中文的意思叫高分辨率分类器，其实就是把ImageNet的图片数据分辨率提高后再训练一次。由于历史的原因，ImageNet的图片分辨率224x224太低了，因此可能会影响检测的精度。于是作者采用的训练方法是先在224x224的ImageNet上训练一次，然后把ImageNet的图片分辨率提升到448x448后进行Fine-tune训练，最后再用自己的数据集进行Fine-tune训练，最终得到的feature map尺寸为13x13。这一下就让模型在VOC2007上的mAP提升了3.7%。</p>
+<h4 id="3）Convolutional-With-Anchor-Boxes"><a href="#3）Convolutional-With-Anchor-Boxes" class="headerlink" title="3）Convolutional With Anchor Boxes"></a>3）Convolutional With Anchor Boxes</h4><p>​    YOLO V1的网络结构最后用的是全连接层对Bbox进行预测，其中边界框的宽与高与输入图片的大小相关，而输入图片中可能存在不同尺度和长宽比（scales and ratios）的物体，折让YOLOv1在训练过程中学习不同物体的形状是比较困难的。于是YOLO V2借鉴了Faster-RCNN中RPN的anchor，移除了全连接层，采用了全卷积加设置不同比例和尺度的anchor box，再通过offset回归预测Bbox，使得模型更容易学习不同尺度和比例的物体。</p>
+<h4 id="4）Dimension-Clusters"><a href="#4）Dimension-Clusters" class="headerlink" title="4）Dimension Clusters"></a>4）Dimension Clusters</h4><p>​    这个是YOLO V2生成anchor的一个小技巧，Faster-RCNN中的anchor是人为规定的9个。实际上如果anchor的尺度比较合适，模型将会更容易学习，从而做出更精确的预测。因此，YOLO V2的anchor不是人为设定的，而是算出来的。作者通过K-means聚类，对训练集中的数据的ground truth boxes根据公式：d * (box, centroid) = 1 − IOU(box, centroid），对BBox与中心Box的IoU值进行了聚类。最终，作者得出的结论是，我用5个anchor就行了，不需要到9个那么多。对于COCO数据集，每个anchor的width和height为：(0.57273, 0.677385), (1.87446, 2.06253), (3.33843, 5.47434), (7.88282, 3.52778), (9.77052, 9.16828)。这个维度是相对于卷积过后的特征图13x13的维度。</p>
+<img src="F:\blog\CV\YOLO系列\pics\YOLOv2-anchor.png" style="zoom:50%;" />
+
+<h4 id="5）Anchor，Truth-Bboxes-amp-Predicted-Bboxes"><a href="#5）Anchor，Truth-Bboxes-amp-Predicted-Bboxes" class="headerlink" title="5）Anchor，Truth Bboxes &amp; Predicted Bboxes"></a>5）Anchor，Truth Bboxes &amp; Predicted Bboxes</h4><h4 id="6）passthrough-amp-Fine-Grained-Features"><a href="#6）passthrough-amp-Fine-Grained-Features" class="headerlink" title="6）passthrough &amp; Fine-Grained Features"></a>6）passthrough &amp; Fine-Grained Features</h4><p>​    中文叫更精细的特征图，用于对小物体的预测。若YOLOv2的输入图片大小为416x416，经过卷积运算之后得到大小为13x13的特征图，这对检测大物体是足够了，但是对于小物体还需要更精细的特征图。YOLO V2引入了类似于ResNet中shortcut的passthrough层，将卷积过程中更高维度的特征图（如26x26）与后面低维度的特征图进行concat。那不同维度的feature map是怎么concat的呢？这里作者采用了叫reorg的算法，将高维度的特征图按位置抽样，且不丢失位置信息，如下图。4x4的feature map可以变成4个2x2的feature map，叠起来后这样就能实现高维度的特征图和低维度的特征图进行concat，从而实现Fine-Grained Features。</p>
+<p><img src="F:\blog\CV\YOLO系列\pics\reorg.png"></p>
+<h4 id="7）Multi-Scale-Training"><a href="#7）Multi-Scale-Training" class="headerlink" title="7）Multi-Scale Training"></a>7）Multi-Scale Training</h4><p>​    因为移除了全连接层，YOLO V2现在是个全卷积网络的结构，于是网络的输入不再需要固定维度。为了增强模型的鲁棒性，YOLO V2网络训练的输入图片尺寸为从320，352，…，到608，都是32的倍数，这是为了保证卷积过后的特征图尺度为整数。输入图片最小为320x320，此时对应的特征图大小为10x10，而输入图片最大为608x608，对应的特征图大小为19x19。在训练过程，每隔10个epoch改变一次输入图片大小，然后只需要修改对最后检测层的处理就可以继续训练。</p>
+<h4 id="8）DarkNet-19"><a href="#8）DarkNet-19" class="headerlink" title="8）DarkNet-19"></a>8）DarkNet-19</h4><h3 id="2-YOLO-9000简介"><a href="#2-YOLO-9000简介" class="headerlink" title="2. YOLO 9000简介"></a>2. YOLO 9000简介</h3><p>​    YOLO V2的论文就叫YOLO9000:Better, Faster, Stronger, 所以YOLO 9000是在YOLO V2的基础上提出的一种可以检测超过9000个类别的模型，其主要贡献点在于提出了一种分类和检测的联合训练策略。众多周知，检测数据集的标注要比分类数据集打标签繁琐的多，所以ImageNet分类数据集比VOC等检测数据集的数量和种类高出几个数量级。而在YOLO V2中，边界框的预测其实并不依赖于物体的标签，所以YOLO V2可以实现在分类和检测数据集上的联合训练。对于检测数据集，可以用来学习预测物体的边界框、置信度以及为物体分类，而对于分类数据集可以仅用来学习分类，但是其可以大大扩充模型所能检测的物体种类。</p>
+<h2 id="三-YOLO-V3-2018-Joseph"><a href="#三-YOLO-V3-2018-Joseph" class="headerlink" title="三. YOLO V3 [2018, Joseph]"></a>三. <a target="_blank" rel="noopener" href="https://pjreddie.com/media/files/papers/YOLOv3.pdf">YOLO V3</a> [2018, Joseph]</h2><h3 id="1-YOLO-V3的改进策略"><a href="#1-YOLO-V3的改进策略" class="headerlink" title="1. YOLO V3的改进策略"></a>1. YOLO V3的改进策略</h3><p>​    相对于YOLO V2，YOLO V3又顺应着时代的洪流加入了许多改进的策略，最主要的改进有：1. 新的残差结构；2. 多尺度结构，运用了FPN那样的up-to-down和down-to-up数据通路；3.改变了分类器</p>
+<h2 id="四-YOLO-V4-2020-Alexey"><a href="#四-YOLO-V4-2020-Alexey" class="headerlink" title="四. YOLO V4 [2020, Alexey]"></a>四. <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2004.10934.pdf">YOLO V4</a> [2020, Alexey]</h2><p>​    2020年初，YOLO的作者宣布退休了，但是YOLO的发展脚步还是没有停下。这不，YOLO V4 虽然作者变了，不过好像是有原作者的授权的，YOLO精神得以延续！</p>
+<h3 id="1-YOLO-V4的改进策略"><a href="#1-YOLO-V4的改进策略" class="headerlink" title="1. YOLO V4的改进策略"></a>1. YOLO V4的改进策略</h3><h4 id="1-Data-augmentation"><a href="#1-Data-augmentation" class="headerlink" title="1) Data augmentation"></a>1) Data augmentation</h4><p>​    YOLO V4在训练数据层面提出了几种新的数据增强的方法，就是把Mixup和Cutout结合起来的CutMix。</p>
+<h5 id="a-Mixup-2018-Zhang"><a href="#a-Mixup-2018-Zhang" class="headerlink" title="a. Mixup [2018, Zhang]"></a>a. <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1710.09412.pdf">Mixup</a> [2018, Zhang]</h5><p>​    首先来了解一下Mixup，顾名思义就是把两张图按一定的比例混在一起。Mixup的作者对各种Mixup方法做了一系列实验后，总结出来Mixup的一些策略。他表示，Mixup两张图片就行了，三张或者更多效果差不多反而还花费更多的时间；只Mix数据集里的一个batch就行了，没必要Mix真个数据集，效果差不多；最好Mix标签不同的图面，如果Mix标签相同的图片没有提升。不过Mixup的提出主要是用来做分类而不是检测的。</p>
+<img src="F:\blog\CV\YOLO系列\pics\mixup.png" style="zoom: 33%;" />
+
+<p>​    Mixup有两种方法，见code</p>
+<h5 id="b-Cutout-2017-DeVires"><a href="#b-Cutout-2017-DeVires" class="headerlink" title="b. Cutout [2017, DeVires]"></a>b. <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1708.04552.pdf">Cutout</a> [2017, DeVires]</h5><p>​    Cutout，顾名思义就是裁剪攻击，将图片的某一块裁剪掉，增大了图片的学习难度，对部分遮挡的识别能有一定的效果提升。</p>
+<img src="F:\blog\CV\YOLO系列\pics\cutout.png" style="zoom: 25%;" />
+
+<p>​    Cutout要先规范化图片到同一尺度，才能进行裁剪，这样是为了避免潜在的影响。之后又有人觉得裁剪后的像素用0填充对图片影响太大了，图片突然出现一块黑可能会于是提议用灰色填充。之后，又有人提出了随机擦除的方法，如上图左下。后来，有人觉得随机擦除的攻击太简单了，很容易把图像的重要特征给擦除了，于是提出了Gridmask的cutout方法，在图片上有规律地每次取一小块，如上图右下，这样既能保证重要特征不会被彻底擦除，又能cutout掉足够多的内容。</p>
+<h5 id="c-CutMix"><a href="#c-CutMix" class="headerlink" title="c. CutMix"></a>c. CutMix</h5><p>​    CutMix就是把一张图片cut掉的部分用另一张图片的部分来mix上去填充，这样既能保证图片所有信息都是有用的，并且有区域性dropout的功能。作者做了一系列的试验后表示，CutMix的引入能让模型效果明显好于Mixup；其次CutMix也是组合两张图片就足够了。</p>
+<img src="F:\blog\CV\YOLO系列\pics\cutmix.png" style="zoom:33%;" />
+
+<h4 id="2）Regularization"><a href="#2）Regularization" class="headerlink" title="2）Regularization"></a>2）Regularization</h4><p>​    YOLO V4在正则化方面做了两个主要优化措施，分别是Label smoothing和Dropblock。</p>
+<h5 id="a-label-smoothing"><a href="#a-label-smoothing" class="headerlink" title="a. label smoothing"></a>a. label smoothing</h5><p>​    label smoothing的意思就是别把标签定得太死。举个例子，就是原本的二分类0/1标签，经过label smoothing把标签定得没这么死后，变成了0.05/0.95，或者0.1/0.9，而不是彻底的0和1。</p>
+<img src="F:\blog\CV\YOLO系列\pics\label-smoothing.png" style="zoom:50%;" />
+
+<p>​    Label Smoothing的效果如上图所示，将CIFAR和ImageNet的数据进行Label Smoothing后再进行训练，可以发现训练集和验证集的结果显示，类别之间的特征差异更加明显。</p>
+<h5 id="b-Dropblock"><a href="#b-Dropblock" class="headerlink" title="b. Dropblock"></a>b. Dropblock</h5><p>​    Dropblock实际上就是把dropout的思想引入到卷积层而提出的。通常情况下，Dropout一般用于全连接层，且它有一定的正则作用可以防止模型过拟合。Dropout在卷积层是没有效果的，原因是因为卷积核共享参数，这样在卷积层中随意Dropout掉的神经元在其他神经元中会保留有信息。但是在YOLO中采用的是全卷积网络，没有全连接层。想到达到有Dropout的正则化效果，就要使用DropBlock。</p>
+<p>​    Dropout是随机将某个神经元失活。为了解决卷积层中参数共享的问题，DropBlock的原理是将feature map中某一片block给随机失活。</p>
+<img src="F:\blog\CV\YOLO系列\pics\dropblock.png" style="zoom:33%;" />
+
+<h4 id="3）Activation-Function"><a href="#3）Activation-Function" class="headerlink" title="3）Activation Function"></a>3）Activation Function</h4><h5 id="Mish"><a href="#Mish" class="headerlink" title="Mish"></a>Mish</h5><h4 id="4）Loss-Function"><a href="#4）Loss-Function" class="headerlink" title="4）Loss Function"></a>4）Loss Function</h4><h5 id="CIoU-Loss"><a href="#CIoU-Loss" class="headerlink" title="CIoU Loss"></a>CIoU Loss</h5><p>​    介绍CIoU Loss可以先从IoU Loss说起。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/04/29/CV/YOLO/Yolo%E7%B3%BB%E5%88%97%E6%A3%80%E6%B5%8B%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/" data-id="cko2b3cuv0009p4vc3ysfc4x2" data-title="" class="article-share-link">Compartir</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2021/04/29/CV/train/model-train/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Viejo</strong>
+      <div class="article-nav-title"></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archivos</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Posts recientes</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/04/29/CV/YOLO/Yolo%E7%B3%BB%E5%88%97%E6%A3%80%E6%B5%8B%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/train/model-train/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/train/data-preprocessing/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/RCNN-family/RCNN%EF%BC%8CFast%20RCNN%EF%BC%8CFaster%20RCNN%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/facebagnet&attention/SENet/">(no title)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 Cheng Zixu<br>
+      Construido por <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="图像分割图像分割下主要分为一下三个领域：语义分割、实例分割、全景分割。语义分割是图像分割里最早的任务，是将图像中相同类的像素用同一个标签表示出来；实例分割是图像分割与检测相结合的一个任务，类似于更细粒度的目标检测，对每个目标得到bbox后，对bbox中的具体的目标做一个mask，得到其更精细的边缘，它与语义分割最大的不同点是，实例分割会将相同的类的不同实例区分开来，不仅可以知道实例的类别，同时得到">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/2021/04/29/CV/Autodriving/segmentation/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="图像分割图像分割下主要分为一下三个领域：语义分割、实例分割、全景分割。语义分割是图像分割里最早的任务，是将图像中相同类的像素用同一个标签表示出来；实例分割是图像分割与检测相结合的一个任务，类似于更细粒度的目标检测，对每个目标得到bbox后，对bbox中的具体的目标做一个mask，得到其更精细的边缘，它与语义分割最大的不同点是，实例分割会将相同的类的不同实例区分开来，不仅可以知道实例的类别，同时得到">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/segmentation.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/hrnet.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/hrnet2.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/HigherHRNet.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/danet1.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/danet2.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/ocrnet.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/ocrnet2.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/ocrnet3.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/maskrcnn.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/solo.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/solo2.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/solov2.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/solov2-1.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/blendmask-attns.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/blendmask.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/blendmask-attention.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/panoptic-deepLab.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/panoptic-deepLab2.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/centerregression.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/confidence.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/segm-from-dense-det.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/upsnet.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/upsnet2.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/vpsnet.png">
+<meta property="article:published_time" content="2021-04-29T03:06:20.080Z">
+<meta property="article:modified_time" content="2021-04-28T09:23:35.602Z">
+<meta property="article:author" content="Cheng Zixu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="f:/blog/CV/Autodriving/imgs/segmentation.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Buscar"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Buscar"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-CV/Autodriving/segmentation" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/04/29/CV/Autodriving/segmentation/" class="article-date">
+  <time class="dt-published" datetime="2021-04-29T03:06:20.080Z" itemprop="datePublished">2021-04-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="图像分割"><a href="#图像分割" class="headerlink" title="图像分割"></a>图像分割</h1><p>图像分割下主要分为一下三个领域：语义分割、实例分割、全景分割。语义分割是图像分割里最早的任务，是将图像中相同类的像素用同一个标签表示出来；实例分割是图像分割与检测相结合的一个任务，类似于更细粒度的目标检测，对每个目标得到bbox后，对bbox中的具体的目标做一个mask，得到其更精细的边缘，它与语义分割最大的不同点是，实例分割会将相同的类的不同实例区分开来，不仅可以知道实例的类别，同时得到实例的id；全景分割本质就是语义分割+实例分割，对感兴趣的前景部分（论文里一般称为thing）做实例分割，不感兴趣的背景部分（stuff）做语义分割。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\segmentation.png"></p>
+<h2 id="语义分割进展"><a href="#语义分割进展" class="headerlink" title="语义分割进展"></a>语义分割进展</h2><h3 id="HRNet"><a href="#HRNet" class="headerlink" title="HRNet"></a>HRNet</h3><p>传统的深度学习网络都是随着网络深度的增加feature map大小会不断地缩小，这在语义分割中会造成定位精度降低的问题。HRNet的思想就是在网络不断加深的时候保持feature map的大小不变，这样就能解决定位精度降低的问题。</p>
+<p>HRNet一开始可能会先用几个卷积操作将图片尺寸缩小到1/4左右，避免原图过大消耗大量的计算资源，之后便采用随着深度增加图片尺寸不变的方法。HRNet的网络结构如下图，它的1x的输入可能已经是resize过后的图片，经过两次卷积后，会有一个2倍下采样的分支，两个分支都进行两次卷积后，会有一个融合操作，1x的分支会下采样与2x分支融合，2x的分支会上采样与1x分支融合。以此类推不难理解，1x和2x两个分支在融合后经过一次卷积，又会有一个4x的分支，并且4x分支由1x和2x下采样融合得到，1x和2x分支又经历了一次融合。最后三个分支经过一次卷积，一次融合，1x分支的结果便是HRNet的输出。下采样的方法可以用conv+stride；上采样的方法可以用transpose conv或双线性插值。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\hrnet.png"></p>
+<p>融合的目的是将其他分辨率分支的信息相互传递，让输出包含的不同尺寸的信息。HRNet的融合方法如下，首先本分支会经过一个卷积，需要上采样的分支会先用双线性插值后接一个1x1的卷积（图中蓝色块操作），下采样的分支会通过stride+3x3conv来进行下采样（图中绿色块操作）。最后将三个分支的结果相加完成融合。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\hrnet2.png"></p>
+<h3 id="HigherHRNet"><a href="#HigherHRNet" class="headerlink" title="HigherHRNet"></a>HigherHRNet</h3><p>HigherHRNet主要是对HRNet的输出做了改进，作者认为输出是原图的1/4大小还不够，于是在HRNet输出的基础上加上一个模块，使得输出是原图大小的1/2。</p>
+<p>如下图，左边是HRNet，右边将HRNet输出进行一次卷积后，与输出进行concat，经过一个deconv模块上采样到1/2，最后经过3次卷积得到1/2分支的输出结果。可以看到HigherHRNet在1/4分支和1/2分支都有输出结果。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\HigherHRNet.png"></p>
+<h3 id="DANet（Dual-Attention-Network）"><a href="#DANet（Dual-Attention-Network）" class="headerlink" title="DANet（Dual Attention Network）"></a>DANet（Dual Attention Network）</h3><p>DANet使用到了双注意力模块融合，他的具体网络结构如下，通过ResNet网络提取特征后，分别输入到Position注意力模块和Channel注意力模块，得到两个模块的注意力机制特征后进行相加融合后得到语义分割结果。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\danet1.png"></p>
+<p>Position和Channel注意力模块如下：</p>
+<p>Position模块有4个分支，将<strong>A</strong>通过一层卷积后得到<strong>B</strong>，并reshape成（H*W）x C的维度，<strong>A</strong>通过一层卷积后得到<strong>C</strong>，并reshape成C x（H*W）的维度，将reshape后的<strong>B</strong>转置后与reshape后的<strong>C</strong>进行矩阵相乘，再经过softmax后得到的是和为1的（H*W）x（H*W）维度的矩阵<strong>S</strong>，<strong>S</strong>就是提取到的Position注意力信息。<strong>A</strong>通过一层卷积后得到<strong>D</strong>，并reshape成C x（H*W）的维度后，与<strong>S</strong>进行矩阵相乘得到C x（H*W）维度的矩阵，最后reshape回C x H x W维度后与<strong>A</strong>相加就得到了带有Position Attention的feature map。</p>
+<p>Position Attention Module中，（H*W）x（H*W）代表着图像中每个点在Channel方向上的向量之间的余弦相似度，相似度约大，经过softmax后的权重就越高。这样设计便实现了空间维度上的相似度度量来作为Attention。</p>
+<p>Channel模块也较为相似，将<strong>A</strong>通过reshape和转置后得到（H x W）x C维度的矩阵，另一个分支将<strong>A</strong>通过reshape得到C x（H x W）维度的矩阵，将这两个矩阵相乘后经过Softmax得到C x C维度的和为1的矩阵<strong>X</strong>，<strong>X</strong>就是Channel注意力信息。再将<strong>A</strong>通过reshape得到C x（H x W）维度的矩阵后与<strong>X</strong>做矩阵相乘得到C x（H x W）维度的矩阵后reshape回C x H x W维度后与<strong>A</strong>相加就得到了带有Channel Attention的feature map。</p>
+<p>与Position Attention Module类似，Channel Attention Module中，C x C代表着图像中每个Channel的所有像素组成的向量之间的余弦相似度，相似度约大，经过softmax后的权重就越高。这样设计便实现了Channel维度上的相似度度量来作为Attention。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\danet2.png" alt="danet2"></p>
+<h3 id="OCRNet（Object-Contextual-Representations）"><a href="#OCRNet（Object-Contextual-Representations）" class="headerlink" title="OCRNet（Object-Contextual Representations）"></a>OCRNet（Object-Contextual Representations）</h3><p>OCR的思想是，希望若某个像素属于车的话，那它的预测结果应该由所有车的像素点来共同作用预测，而不是像DeepLab中ASPP中其他离散的不属于车像素的点来作用。Object-Contextual指的是图像中物体像素点周围的像素点。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\ocrnet.png"></p>
+<p>OCRNet将backbone提取的feature map，先通过Soft Object Regions做一个粗分割，通过Loss与gt计算后，得到每个物体的粗糙的mask输出。后将feature map看做是Pixel Representation与粗糙的mask进行相乘并求和，得到Object Region Representation，即<strong>f</strong>k，代表着每一个物体的特征。用像素特征<strong>x</strong>与物体特征<strong>f</strong>k，计算出像素和物体的相关度量Pixel-Region Relation，做法是将1x1卷积后的<strong>x</strong>与<strong>f</strong>k进行点乘后，用softmax得到像素与物体之间相关的权重<strong>w</strong>，即Pixel-Region Relation，类似于Attention的思想。最后将<strong>w</strong>与<strong>f</strong>k点乘后相加得到Object-Contextual Representation，与Pixel Representation进行concat得到Augmented Representation后再去做分类。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\ocrnet2.png" alt="ocrnet2"></p>
+<p>若是在Soft Object Regions中，不使用粗糙的mask而是直接使用gt结果会如何？作者通过实验发现直接使用gt的GT-OCR实验的结果更好，如下表。GT-OCR是OCR的理论上界。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\ocrnet3.png" alt="ocrnet3"></p>
+<h2 id="实例分割概述"><a href="#实例分割概述" class="headerlink" title="实例分割概述"></a>实例分割概述</h2><h3 id="Mask-RCNN"><a href="#Mask-RCNN" class="headerlink" title="Mask RCNN"></a>Mask RCNN</h3><p>Mask RCNN基于Faster RCNN，是基于检测来做实例分割的方法。Mask RCNN相对于Faster RCNN多了一个Mask的分支，将RoIAlign后的结果继续进行卷积，最后得到Bbox中的mask。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\maskrcnn.png"></p>
+<h3 id="SOLO"><a href="#SOLO" class="headerlink" title="SOLO"></a>SOLO</h3><p>SOLO是基于YOLO思想的one-stage实例分割方法。</p>
+<p>与YOLO一样，SOLO将图像分为S x S的网格，经过FCN后分别有Category Branch和Mask Branch两个分支。</p>
+<p>Category Branch中，输出是C x S x S维度的矩阵，其中C是类别数，每个网格只预测一个物体，S x S即每个网格属于某个物体类别的概率。Mask Branch中，输出是H x W x S^2，S^2对应着网格对应的每个目标，即Category Branch中的S x S每一个网格都要预测一个mask。两个分支结合便得到了实例分割结果。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\solo.png"></p>
+<p>下图是分支的细节，Category Branch通过Align插值，得到S x S x 256的feature map后通过一些卷积操作就得到了S x S x C的输出；而Mask Branch多加了两层坐标的信息，进行了Coordinate Conv，目的是让定位更加准确，最后还做了一个上采样。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\solo2.png" alt="solo2"></p>
+<h3 id="SOLOv2"><a href="#SOLOv2" class="headerlink" title="SOLOv2"></a>SOLOv2</h3><p>SOLOv2解决了SOLO中无效特征计算过多的问题，它的思想是将Mask Branch中的S^2设定成动态的kernel，若Category Branch中只预测出3个物体，则将Mask Branch中的S^2修改成3，这样预测出来的mask就与这3个物体一一对应，减少了无用特征的计算。</p>
+<p>SOLOv2的原理如下，留个坑，以后看论文再写。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\solov2.png" alt="solov2"></p>
+<p><img src="F:\blog\CV\Autodriving\imgs\solov2-1.png" alt="solov2-1"></p>
+<h3 id="BlendMask"><a href="#BlendMask" class="headerlink" title="BlendMask"></a>BlendMask</h3><p>BlendMask思想是用不同的feature map预测不同的特征，最后用一个融合系数与特征的基向量相乘，将所有结果相加就得到了mask。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\blendmask-attns.png"></p>
+<p>首先通过Backbone和FPN得到一系列feature map，选出部分特征进入Bottom Module负责预测基向量Bases。feature map之后用于预测Bbox和Attns，将用Bbox从Bases中提取出一个小检测框，再与Attns融合后得到mask结果。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\blendmask.png"></p>
+<img src="F:\blog\CV\Autodriving\imgs\blendmask-attention.png" style="zoom:33%;" />
+
+<h2 id="全景分割概述"><a href="#全景分割概述" class="headerlink" title="全景分割概述"></a>全景分割概述</h2><h3 id="Panotic-DeepLab"><a href="#Panotic-DeepLab" class="headerlink" title="Panotic - DeepLab"></a>Panotic - DeepLab</h3><p>顾名思义Panotic-DeepLab是基于DeepLab的全景分割。首先用DeepLab做语义分割，通过语义分割先得到前景的Foreground Mask。然后Panotic-DeepLab还会预测每一个前景物体的中心点Center Prediction，还会预测一个Center Regression，融合后就可以得到实例分割。最后将语义分割和实例分割融合成全景分割。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\panoptic-deepLab.png"></p>
+<p>Panotic-DeepLab网络结构如下图。上半部分的分支是常规的DeepLabV3+语义分割的分支。下半部分的分支最后Decoder输出的channel为128的特征，通过卷积运算分别输出channel为1的Instance Center Prediction和channel为2的Instance Center Regression。Instance Center Prediction判断每个像素是否为某个物体的中心点；Instance Center Regression是每个像素点与其中心点的一个offset向量。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\panoptic-deepLab2.png"></p>
+<p>Center Prediction：</p>
+<p>​    NMS / Maxpooling-7, threshold-0.1, top-k 200</p>
+<p>Center Regression</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\centerregression.png"></p>
+<p>Confidence</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\confidence.png"></p>
+<h3 id="Panoptic-segmentation-from-dense-detections"><a href="#Panoptic-segmentation-from-dense-detections" class="headerlink" title="Panoptic segmentation from dense detections"></a>Panoptic segmentation from dense detections</h3><p>通过R-50-FPN输出多尺度的feature map，对每个尺度都会生成一个定位分支Localization tower和语义分支Semantics tower。Localization tower会对每个像素都输出一个Bbox和中心度Centerness；Semantics tower会输出每个Bbox的分类。在每个分支输出之前，还会对每个尺度的特征上采样到统一维度后concat来得到多尺度的融合特征Global Levelness，用于预测每个像素使用哪个level的Bbox。</p>
+<p>埋坑。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\segm-from-dense-det.png"></p>
+<h3 id="UPSNet"><a href="#UPSNet" class="headerlink" title="UPSNet"></a>UPSNet</h3><p>UPSNet是在MaskRCNN的基础上加上Semantic Head做语义分割就可以了。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\upsnet.png"></p>
+<p>Panoptic Head用于制定融合的策略。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\upsnet2.png" alt="upsnet2"></p>
+<h3 id="VPSNet"><a href="#VPSNet" class="headerlink" title="VPSNet"></a>VPSNet</h3><p>VPSNet提出了视频全景分割</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\vpsnet.png"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/04/29/CV/Autodriving/segmentation/" data-id="cko2b3cuo0005p4vc0tzthd2b" data-title="" class="article-share-link">Compartir</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/04/29/CV/Autodriving/Unet/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Nuevo</strong>
+      <div class="article-nav-title">
+        
+          (no title)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/04/29/CV/Autodriving/ResNet/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Viejo</strong>
+      <div class="article-nav-title"></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archivos</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Posts recientes</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/04/29/CV/YOLO/Yolo%E7%B3%BB%E5%88%97%E6%A3%80%E6%B5%8B%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/train/model-train/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/train/data-preprocessing/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/RCNN-family/RCNN%EF%BC%8CFast%20RCNN%EF%BC%8CFaster%20RCNN%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/facebagnet&attention/SENet/">(no title)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 Cheng Zixu<br>
+      Construido por <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

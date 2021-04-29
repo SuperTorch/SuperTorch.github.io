@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="[TOC] DeepLab模型详解膨胀卷积&#x2F;空洞卷积(Dilated&#x2F;Atrous Convolution)膨胀卷积的原理如下图所示，它的好处是在参数量不变的情况下同时扩大感受野。使用膨胀卷积后可以省去池化层，因为膨胀卷积可以在不缩小feature map的情况下增大感受野，而做Pooling运算的目的就是让feature map缩小后在kernel size不变的情况下可以增大卷积核的感受野。因">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/2021/04/29/CV/Autodriving/DeepLab/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="[TOC] DeepLab模型详解膨胀卷积&#x2F;空洞卷积(Dilated&#x2F;Atrous Convolution)膨胀卷积的原理如下图所示，它的好处是在参数量不变的情况下同时扩大感受野。使用膨胀卷积后可以省去池化层，因为膨胀卷积可以在不缩小feature map的情况下增大感受野，而做Pooling运算的目的就是让feature map缩小后在kernel size不变的情况下可以增大卷积核的感受野。因">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/dilated-conv.gif">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/dilated-conv2d.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/dilated-convtranspose2d.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/deeplabv1.jpg">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/vggatrous.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/CRF.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/msc.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/msc2.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/deeplabv2.jpg">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/aspp.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/aspp2.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/aspp3.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/lr-policy.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/deeplabv3.jpg.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/cascade.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/Multi-Grid.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/parallel.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/cascade-eval.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/parallel-eval.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/deeplabv3.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/modified-xception.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/sep-conv.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/deeplabv3.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/decoder-design.png">
+<meta property="og:image" content="http://121.4.135.20/wp-content/uploads/2021/04/os-design.png">
+<meta property="article:published_time" content="2021-04-29T03:06:19.983Z">
+<meta property="article:modified_time" content="2021-04-23T06:22:14.737Z">
+<meta property="article:author" content="Cheng Zixu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://121.4.135.20/wp-content/uploads/2021/04/dilated-conv.gif">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Buscar"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Buscar"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-CV/Autodriving/DeepLab" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/04/29/CV/Autodriving/DeepLab/" class="article-date">
+  <time class="dt-published" datetime="2021-04-29T03:06:19.983Z" itemprop="datePublished">2021-04-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>[TOC]</p>
+<h1 id="DeepLab模型详解"><a href="#DeepLab模型详解" class="headerlink" title="DeepLab模型详解"></a>DeepLab模型详解</h1><h2 id="膨胀卷积-空洞卷积-Dilated-Atrous-Convolution"><a href="#膨胀卷积-空洞卷积-Dilated-Atrous-Convolution" class="headerlink" title="膨胀卷积/空洞卷积(Dilated/Atrous Convolution)"></a>膨胀卷积/空洞卷积(Dilated/Atrous Convolution)</h2><p>膨胀卷积的原理如下图所示，它的好处是在参数量不变的情况下同时扩大感受野。使用膨胀卷积后可以省去池化层，因为膨胀卷积可以在不缩小feature map的情况下增大感受野，而做Pooling运算的目的就是让feature map缩小后在kernel size不变的情况下可以增大卷积核的感受野。因此使用了膨胀卷积可以满足池化层的同时，不缩小feature map尺寸。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/dilated-conv.gif"></p>
+<p>经过膨胀卷积后特征的输出尺寸计算公式如下，正常卷积的公式是O=[(I+2P-K)/S] +1，空洞卷积只需要将K替换成D*(K-1)+1即可，化简后为O=[(I+2P-D*(K-1)-1/S] +1。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/dilated-conv2d.png"></p>
+<p>转置空洞卷积的计算公式如下，正常转置卷积的公式是O = (I – 1) * S + K – 2P，同样将K替换成D*(K-1)+1，化简后O = (I – 1) * S + D*(K-1) – 2P + 1。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/dilated-convtranspose2d.png"></p>
+<h2 id="DeepLab系列"><a href="#DeepLab系列" class="headerlink" title="DeepLab系列"></a>DeepLab系列</h2><h3 id="DeepLab-V1"><a href="#DeepLab-V1" class="headerlink" title="DeepLab V1"></a>DeepLab V1</h3><h4 id="DeepLab-V1算法流程"><a href="#DeepLab-V1算法流程" class="headerlink" title="DeepLab V1算法流程"></a>DeepLab V1算法流程</h4><p>DeepLab v1将输入图片经过VGG+Atrous Conv网络，输出的是原图1/8大小的粗糙的score map，经过8倍双线性插值上采样得到原图大小。之后经过Fully Connected CRF后便得到精细的score map。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/deeplabv1.jpg"></p>
+<h4 id="VGG-Atrous"><a href="#VGG-Atrous" class="headerlink" title="VGG+Atrous"></a>VGG+Atrous</h4><p>如下图，左边是VGG网络结构，右边是DeepLab V1对VGG的改造来是实现图像分割。首先是跟FCN同样操作的将VGG的全连接层进行卷积话，具体可参考<a href="./FCN.md">FCN详解</a>。然后移除最后两个Pooling层，并对最后两层的卷积改用空洞卷积，倒数第二层的膨胀系数是2，最后一层的膨胀系数是4。此外，由于膨胀卷积不改变feature map尺寸从而增大了计算量，DeepLab V1作者将最后一层的7x7卷积改成4x4或者3x3，目的是减小参数量。最后输出前的4096通道变成了1024通道，也是为了减小参数量。这样DeepLab V1的主要网络就诞生了。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/vggatrous.png"></p>
+<h4 id="CRF"><a href="#CRF" class="headerlink" title="CRF"></a>CRF</h4><p>CRF（Conditional Random Field）条件随机场是传统机器学习中概率图模型常用的方法，现在深度学习中已经很少用了。它是将每个像素点看做是一个状态节点，每个节点下一个状态的概率是其本身概率加上所有相邻像素对其状态转移概率（对应下图公式的第一项和第二项），下图公式的第一项是coarse score map输出的P(xi)求熵作为本点的贡献，第二项中P代表位置position，I代表亮度illumination（即图像的RGB），它由以w1为权重的关于position和illumination的双边滤波和以w2为权重的高斯模糊计算得到相邻点的贡献，其中双边滤波是位置越近亮度差异越小的点贡献越大，目的是保边；高斯模糊是为了使得输出更平滑。xi代表的是i像素的label，如果两个像素点的标签xi和xj相同的时候则不做计算。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/CRF.png"></p>
+<p>CRF后处理的计算量很大，速度大概是2fps，而神经网络的计算速度是8fps…</p>
+<h4 id="Muiti-Scale-Prediction"><a href="#Muiti-Scale-Prediction" class="headerlink" title="Muiti-Scale Prediction"></a>Muiti-Scale Prediction</h4><p>DeepLab V1运用了多尺度预测，将图片做上下采样的尺度变换，经过网络输出结果后再反变换回原来的尺度，对多个尺度的结果进行融合便得到Muiti-Scale Prediction，即下表中的MSc。</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/msc.png" style="zoom: 50%;" />
+
+<p>下图中input stride就是dilate rate膨胀率，下表的实验可以看出，在缩小kernel size同时增大input stride的同时，感受野不变，参数量又134.3M降到了20.5M，且mIOU值持平情况下运算速度从1.44fps提升到4.84。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/msc2.png"></p>
+<h3 id="DeepLab-V2"><a href="#DeepLab-V2" class="headerlink" title="DeepLab V2"></a>DeepLab V2</h3><p>DeepLab V2跟V1版本改动不算很大，主要的改进是用了ResNet，ASPP和Learning rate Policy。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/deeplabv2.jpg"></p>
+<h4 id="backbone"><a href="#backbone" class="headerlink" title="backbone"></a>backbone</h4><p>把VGG替换成ResNet。</p>
+<h4 id="Atrous-Spatial-Pyramid-Pooling（ASPP）"><a href="#Atrous-Spatial-Pyramid-Pooling（ASPP）" class="headerlink" title="Atrous Spatial Pyramid Pooling（ASPP）"></a>Atrous Spatial Pyramid Pooling（ASPP）</h4><p><strong>这部分是V2的重点。</strong></p>
+<p>在V1中采用了多尺度计算的后处理，V2为了将多尺度思想融合到网络里，设计了ASPP。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/aspp.png"></p>
+<p>ASPP如上图，用不同dilate rate的卷积核对原图做并行计算。dilate rate不同，感受野大小也不同，便可以达到多尺度的目的。最后对并行计算的结果进行融合。</p>
+<p>作者采用了决策层的融合方法，将每个并行计算的结果进行sum-fusion。</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/aspp2.png" style="zoom:50%;" />
+
+<p>作者还设计了ASPP-S和ASPP-L，区别在于并行计算卷积核的膨胀率不同，分别是{2,4,8,12}和{6,12,18,24}，其中ASPP-S和V1中LargeFOV的感受野是相同的，实验结果对比可以看出在CRF之前ASPP方法是对模型精度有所提升的。</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/aspp3.png" style="zoom:67%;" />
+
+<h4 id="Learning-rate-Policy"><a href="#Learning-rate-Policy" class="headerlink" title="Learning rate Policy"></a>Learning rate Policy</h4><p>Learning rate Policy的目的是在网络学习的后期降低学习率使得模型向最优值靠近而不是在其左右震荡。在工业界常用的学习率调整策略有step和poly等，step就是在某个特定周期的时候乘上退化因子来降低学习率，poly的公式是lr = lr *（1 - iter/max_iter)^p，即每个周期都会根据公式来调整学习率。</p>
+<p>下表是V2的Learning rate Policy实验结果。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/lr-policy.png"></p>
+<h3 id="DeepLab-V3"><a href="#DeepLab-V3" class="headerlink" title="DeepLab V3"></a>DeepLab V3</h3><p>DeepLab V3版本相对于V2有了很大的改进，主要有一下四个方面：运用串/并行结构(Cascade/Parallel)、Mutil-grid、Modified ASPP和移除了CRF。</p>
+<p>DeepLab V3有Cascade和Parallel两个模式。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/deeplabv3.jpg.png"></p>
+<h4 id="DeepLab-V3-Cascade"><a href="#DeepLab-V3-Cascade" class="headerlink" title="DeepLab V3-Cascade"></a>DeepLab V3-Cascade</h4><p>DeepLab V3对ResNet稍微做了修改，在Block1处的stride改为2，因此尺寸从1/4变成了1/8，其次添加了Block5/6/7，它们都跟Block4相同，不过Block7的stride为1。Block7的输出尺寸为输入的1/256，尺寸太小不利于图像分割的定位。</p>
+<p>于是从Block4开始使用了空洞卷积，并且逐步提高了膨胀率，增大了感受野，最后输出的尺寸是原图像的1/16，如下图。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/cascade.png"></p>
+<h5 id="Multi-Grid"><a href="#Multi-Grid" class="headerlink" title="Multi_Grid"></a>Multi_Grid</h5><p>DeepLab V3-Cascade中还用到了<strong>Multi_Grid</strong>方法，Multi_Grid是（r1，r2，r3）三个参数。因为Block4对应的是下图中ResNet的conv5，conv5中不论是ResNet-50/101/152都是3组卷积，所以Multi_Grid的3个参数就对应着这3组卷积。也就是说，Block4/5/6/7使用的空洞卷积中，每组卷积的膨胀率都不一样，真实的dilated rate=rate * Multi_Grid。以Block4为例，rate = 2，Multi_Grid = (1，2，4)，则Block4中三组空洞卷积的膨胀率分别为(2，4，8)。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/Multi-Grid.png"></p>
+<h4 id="DeepLab-V3-Parallel"><a href="#DeepLab-V3-Parallel" class="headerlink" title="DeepLab V3-Parallel"></a>DeepLab V3-Parallel</h4><p>Parallel模式其实就是V2的ASPP。它也是从Block4开始使用了空洞卷积，但是Block5/6/7从串联变成了并联，其中Block4使用了Mutil_Grid，Block5/6/7不使用Mutil_Grid。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/parallel.png"></p>
+<h5 id="Modified-ASPP"><a href="#Modified-ASPP" class="headerlink" title="Modified ASPP"></a>Modified ASPP</h5><p>V3对ASPP做了一些小调整。首先砍掉了V2中的rate=24，是因为膨胀率太大导致卷积核膨胀后比feature map还要大，这会导致卷积核中膨胀出去的8个参数都无效，只有中间的参数进行了运算，这会将3x3 rate=24的膨胀卷积退化成1x1的卷积。于是作者索性用一个1x1的卷积代替了3x3 rate=24的膨胀卷积。</p>
+<p>并行结构中除了有以上ASPP的4个分支，还有一个Image Pooling的分支，它将Block4的结果做了个全局平均池化将feature map大小变成了1x1。这么做的目的是为了代替大的感受野，用于感受全局。ASPP的4个分支的输出尺寸都是一样的，Image Pooling的输出为1x1，所以要将1x1上采样成相同尺寸后，再进行concat和1x1 Conv，最后得到DeepLab V3-Parallel的输出。</p>
+<h4 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h4><p>DeepLab V3-Cascade的实验结果如下：</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/cascade-eval.png" style="zoom:33%;" />
+
+<p>Cascade模式中，最后使用Block7+MG(1,2,1)。OS是Output Stride，控制的是输入与输出的尺寸的比值，可以修改之前Block1的Stride来改变Output Stride。MS是Mutil-Scale，Flip是图片翻转，都是刷分的一些技巧。</p>
+<p>DeepLab V3-Parallel的实验结果如下：</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/parallel-eval.png" style="zoom:33%;" />
+
+<p>Parallel模式中，最后使用的是MG(1,2,4)+ASPP(6,12,18)+ImagePooling。其中MG(1,2,4)只对Block4使用。COCO是在COCO数据集上pretrain后再做实验。</p>
+<h3 id="DeepLab-V3-1"><a href="#DeepLab-V3-1" class="headerlink" title="DeepLab V3+"></a>DeepLab V3+</h3><p>DeepLab V3+对比与V3长得不太一样了。他的主要改进是使用了Modified Xception、深度可分离空洞卷积和Encoder-Decoder结构。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/deeplabv3.png"></p>
+<h4 id="Modified-Xception"><a href="#Modified-Xception" class="headerlink" title="Modified Xception"></a>Modified Xception</h4><p>DeepLab V3+的backbone添加了Xception并修改了一下Xception的结构。</p>
+<p>下图是Modified Xception的网络结构，Xception网络分为3个部分：进入流、中间流和退出流。下图中的红色部分是Modified Xception对于Xception修改的地方，进入流和退出流中红色的Sep Conv原先都是Pooling，其中输出流最后一个红色Sep Conv 1536,3x3原先是GlobalAveragePooling，其余的原先都是MaxPooling，现在改成了Sep Conv，stride 2因此还是会下采样2倍。其次，中间流从原先的重复8次改为了重复16次。最后将BN层和ReLU加到了每个3x3 Sep Conv之后。</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/modified-xception.png" style="zoom:67%;" />
+
+<h4 id="深度可分离空洞卷积"><a href="#深度可分离空洞卷积" class="headerlink" title="深度可分离空洞卷积"></a>深度可分离空洞卷积</h4><p>深度可分离卷积(Depthwise Separable Convolution)用到了分组卷积的思想，它将Group = In_channel，每个通道成一组，单独进行卷积，如下图(a)，这样卷积后每个通道的信息是隔离的；然后使用1x1卷积进行Pointwise Conv，对每个通道之间的信息进行一个融合交换，如下图(b)，这样就实现了可分离。</p>
+<p>深度可分离空洞卷积，就是将深度可分离卷积步骤(a)中的卷积换成了空洞卷积，如下图(c)。</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/sep-conv.png" style="zoom:75%;" />
+
+<h4 id="Encoder-Decoder"><a href="#Encoder-Decoder" class="headerlink" title="Encoder-Decoder"></a>Encoder-Decoder</h4><p>DeepLab V3+使用了Encoder-Decoder结构，这是DeepLab V3+最关键的部分。DeepLab V3去掉了CRF的后处理，而DeepLab V3+认为去掉了CRF可能会带来一些弊端。CRF在计算中用到了image和score信息，于是DeepLab V3+希望通过设计一个神经网络Decoder来模拟CRF。</p>
+<p>Encoder部分其实就是DeepLab V3中parallel模式的ASPP，它的输出可以类比于score，是神经网络输出的一个编码信息。当OS = 16时，1x1 Conv输出的是1/16大小的feature map，在DCNN后会得到1/4大小的Low-Level feature map。将1/16进行一个4倍上采样，将1/4进行1x1 Conv压缩通道后，将它们concat组成新的feature map，经过3x3 Conv 再上采样4倍后得到了原图大小的分割结果。</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/deeplabv3.png" style="zoom:75%;" />
+
+<h4 id="设计与调参"><a href="#设计与调参" class="headerlink" title="设计与调参"></a>设计与调参</h4><h5 id="Decoder"><a href="#Decoder" class="headerlink" title="Decoder"></a>Decoder</h5><p>Decoder的思想就是将CRF操作转成Conv运算，以及如何融合low-level feature 和 score。</p>
+<p>low-level feature的1x1 Conv通道数应该设定成多少，作者通过实验发现设定成48通道的效果是最好的。在固定了1x1 Conv的结构后，作者对3x3 Conv的结构进行调整，实验后发现在使用Conv2（这里用的ResNet做实验）输出low-level feature并且用两个3x3，256 Conv得到的结果最好。</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/decoder-design.png" style="zoom: 33%;" />
+
+<h5 id="OS"><a href="#OS" class="headerlink" title="OS"></a>OS</h5><p>作者在实验中分了train OS和eval OS，说明在训练和验证阶段的OS可以是不同的。这是因为改变OS只需要在Block中改变stride，而网络参数是不改变的。</p>
+<p>作者发现在训练的时候OS=32的效果并不如16，并且在eval时OS取8会有更好的结果。</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/os-design.png" style="zoom:50%;" />
+
+<h3 id="DeepLab系列总结"><a href="#DeepLab系列总结" class="headerlink" title="DeepLab系列总结"></a>DeepLab系列总结</h3><p>• 空洞卷积</p>
+<p>​    可以不改变图片尺寸的情况下增大感受野，有利于图像分割任务</p>
+<p>• Multi-grid</p>
+<p>• ASPP</p>
+<p>• Backbone（ResNet / Xception）</p>
+<p>• 深度可分离卷积</p>
+<p>• CRF → Decoder</p>
+<p>• 消融实验</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/04/29/CV/Autodriving/DeepLab/" data-id="cko2b3cuh0001p4vc99x1fa4n" data-title="" class="article-share-link">Compartir</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/04/29/CV/Autodriving/FCN/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Nuevo</strong>
+      <div class="article-nav-title">
+        
+          (no title)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/04/29/CV/Algorithm-Trick/CV%20Algorithm%20Trick%20II/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Viejo</strong>
+      <div class="article-nav-title"></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archivos</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Posts recientes</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/04/29/CV/YOLO/Yolo%E7%B3%BB%E5%88%97%E6%A3%80%E6%B5%8B%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/train/model-train/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/train/data-preprocessing/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/RCNN-family/RCNN%EF%BC%8CFast%20RCNN%EF%BC%8CFaster%20RCNN%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/facebagnet&attention/SENet/">(no title)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 Cheng Zixu<br>
+      Construido por <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

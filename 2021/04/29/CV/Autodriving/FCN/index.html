@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="全卷积网络全卷积网络是深度学习语义分割的开山之作。在通常的CNN中，经过全连接层后，特征的维度将会变成Batch x Channel，但在语义分割中的label是需要BxCxWxH的形式的。因此我们可以用一些卷积操作来等价全连接运算的同时来满足语义分割的需要。如下图，假设卷积全连接之前的维度是（Bx256x7x7），可以用kernel size为7x7，channel为4096的卷积核进行卷积运算">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/2021/04/29/CV/Autodriving/FCN/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="全卷积网络全卷积网络是深度学习语义分割的开山之作。在通常的CNN中，经过全连接层后，特征的维度将会变成Batch x Channel，但在语义分割中的label是需要BxCxWxH的形式的。因此我们可以用一些卷积操作来等价全连接运算的同时来满足语义分割的需要。如下图，假设卷积全连接之前的维度是（Bx256x7x7），可以用kernel size为7x7，channel为4096的卷积核进行卷积运算">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/fcn.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/fcn-32s.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/fcn-result.png">
+<meta property="article:published_time" content="2021-04-29T03:06:20.027Z">
+<meta property="article:modified_time" content="2021-03-31T02:57:39.468Z">
+<meta property="article:author" content="Cheng Zixu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="f:/blog/CV/Autodriving/imgs/fcn.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Buscar"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Buscar"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-CV/Autodriving/FCN" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/04/29/CV/Autodriving/FCN/" class="article-date">
+  <time class="dt-published" datetime="2021-04-29T03:06:20.027Z" itemprop="datePublished">2021-04-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="全卷积网络"><a href="#全卷积网络" class="headerlink" title="全卷积网络"></a>全卷积网络</h1><p>全卷积网络是深度学习语义分割的开山之作。在通常的CNN中，经过全连接层后，特征的维度将会变成Batch x Channel，但在语义分割中的label是需要BxCxWxH的形式的。因此我们可以用一些卷积操作来等价全连接运算的同时来满足语义分割的需要。如下图，假设卷积全连接之前的维度是（Bx256x7x7），可以用kernel size为7x7，channel为4096的卷积核进行卷积运算便得到维度为（Bx4096x1x1）的特征，再通过1x1的卷积，改变通道维度，便可以等价之后的全连接操作。</p>
+<img src="F:\blog\CV\Autodriving\imgs\fcn.png" style="zoom: 50%;" />
+
+<p>因为FCN没有了全连接层，因此输入图片的维度可以使任意的，最后可以将输出进行上采样来得到我们想要的维度。</p>
+<h3 id="Padding-100"><a href="#Padding-100" class="headerlink" title="Padding-100"></a>Padding-100</h3><p>FCN作者在源码中对输入图像做了一个Padding-100的操作，这样可以保证FCN网络输出一个比较大尺寸的feature map，这也是为了保证图像在进行等价全连接的7x7卷积运算中不会因为feature map尺寸太小而发生维度报错。</p>
+<h3 id="In-network-Upsampling"><a href="#In-network-Upsampling" class="headerlink" title="In-network Upsampling"></a>In-network Upsampling</h3><p>In-network Upsampling的有别于后处理上采样（如插值）的好处是，它可以通过转置卷积来实现，并且转置卷积中的参数可以在训练中进行学习，而后处理的上采样的参数是固定的。通过In-network Upsampling可以实现一个端到端的网络。</p>
+<p>用双线性插值初始化转置卷积。kernel的权重为（1- dij/n)，其中dij为该点离kernel中心的距离，n为上采样的倍数。</p>
+<h3 id="Crop"><a href="#Crop" class="headerlink" title="Crop"></a>Crop</h3><p>由于在对输入图片做了Padding-100的操作，且在卷积的过程中如果遇到奇数，则会导致池化后的维度出现小数后向下取整，这会导致在上采样后feature map的维度也还是会与原始输入的维度不一致，这就需要用crop来处理。</p>
+<p>VGG-FCN中crop的offset值取19。计算过程如下：在第一层卷积中，输入的维度为H，Padding为100，kernel size为3，stride为1，根据公式第一层卷积的输出维度为（H + 2x100 - 3)/1 + 1 = (H + 198)。经过5层卷积层输出的维度为(H + 198)/32。在最后卷积化层中，kernel size为7，输出的维度为(H + 6)/32。经过In-network Upsampling的32倍上采样转置卷积，输出的维度为（(H + 6)/32 - 1) x 32 + 64 = H + 38。因此VGG-FCN中offset值取38/2=19。</p>
+<p>作者认为只是简单的32倍上采样的话，得到的结果会过于粗糙，因此也提出了不同尺度的16倍和8倍上采样的方法。首先将32倍上采样前的feature map先进行一个2倍的上采样，然后将第四层卷积后的feature map进行一个1x1的卷积使得channel维度与2倍的上采样后的维度一样，再对其进行crop，这两步构成了pool4的skip操作，其中crop操作的offset通过上文类似的计算得到值为5。将skip操作后pool4和2倍的上采样后的conv7相加，再上采样16倍，再进行offset为27的crop便得到FCN-16s的输出。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\fcn-32s.png"></p>
+<p>FCN-16s还是不够精细，还需要FCN-8s。与FCN-16s的方法类似，先将pool3的进行skip操作，再将FCN-16s中16倍上采样前2x conv7和pool4相加的和做一个2倍的上采样后与skip操作（在这里是1x1卷积加offset=9的crop）后的pool3进行相加，最后进行8倍上采样后再crop处理（在这里offset=33），得到与输入尺寸一样的FCN-8s的输入。实验的结果如下图，可以发现添加了FCN-16s和FCN-8s后，得到的实验结果精细了很多。</p>
+<img src="F:\blog\CV\Autodriving\imgs\fcn-result.png" style="zoom: 25%;" />
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/04/29/CV/Autodriving/FCN/" data-id="cko2b3cuc0000p4vccid9dqwx" data-title="" class="article-share-link">Compartir</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/04/29/CV/Autodriving/modelevalanddeploy/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Nuevo</strong>
+      <div class="article-nav-title">
+        
+          (no title)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/04/29/CV/Autodriving/DeepLab/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Viejo</strong>
+      <div class="article-nav-title"></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archivos</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Posts recientes</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/04/29/CV/YOLO/Yolo%E7%B3%BB%E5%88%97%E6%A3%80%E6%B5%8B%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/train/model-train/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/train/data-preprocessing/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/RCNN-family/RCNN%EF%BC%8CFast%20RCNN%EF%BC%8CFaster%20RCNN%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/facebagnet&attention/SENet/">(no title)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 Cheng Zixu<br>
+      Construido por <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

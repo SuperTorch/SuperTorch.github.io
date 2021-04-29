@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/page/2/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="Cheng Zixu">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Buscar"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Buscar"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main">
+  
+    <article id="post-CV/Autodriving/无人驾驶车道线分割技术" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/04/29/CV/Autodriving/%E6%97%A0%E4%BA%BA%E9%A9%BE%E9%A9%B6%E8%BD%A6%E9%81%93%E7%BA%BF%E5%88%86%E5%89%B2%E6%8A%80%E6%9C%AF/" class="article-date">
+  <time class="dt-published" datetime="2021-04-29T03:06:20.134Z" itemprop="datePublished">2021-04-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="无人驾驶车道线分割技术"><a href="#无人驾驶车道线分割技术" class="headerlink" title="无人驾驶车道线分割技术"></a>无人驾驶车道线分割技术</h1><h2 id="无人驾驶系统"><a href="#无人驾驶系统" class="headerlink" title="无人驾驶系统"></a>无人驾驶系统</h2><p>​    无人车驾驶系统的主要技术如下图，其中车道线分割属于感知系统中，使用相机传感器获取图像信息并使用图像分割技术做处理。图像分割也可以细分为语义分割、实例分割和全景分割等。车道线分割属于语义分割</p>
+<p><img src=".%5Cimgs%5Csystem.png"></p>
+<h2 id="数据集"><a href="#数据集" class="headerlink" title="数据集"></a>数据集</h2><p>​    百度无人车测到线检测挑战赛 <a target="_blank" rel="noopener" href="https://aistudio.baidu.com/aistudio/competition/detail/5">https://aistudio.baidu.com/aistudio/competition/detail/5</a></p>
+<h2 id="相关技术"><a href="#相关技术" class="headerlink" title="相关技术"></a>相关技术</h2><h3 id="FCN"><a href="#FCN" class="headerlink" title="FCN"></a>FCN</h3><h3 id="U-Net"><a href="#U-Net" class="headerlink" title="U-Net"></a>U-Net</h3><h3 id="DeepLab-v3"><a href="#DeepLab-v3" class="headerlink" title="DeepLab-v3+"></a>DeepLab-v3+</h3><h2 id="项目概述"><a href="#项目概述" class="headerlink" title="项目概述"></a>项目概述</h2><p>数据处理</p>
+<p>模型搭建</p>
+<p>训练框架搭建</p>
+<p>模型评估</p>
+<p>模型部署</p>
+<h2 id="CNN卷积神经网络"><a href="#CNN卷积神经网络" class="headerlink" title="CNN卷积神经网络"></a>CNN卷积神经网络</h2><h3 id="卷积输出维度计算公式"><a href="#卷积输出维度计算公式" class="headerlink" title="卷积输出维度计算公式"></a>卷积输出维度计算公式</h3><p>OutputSize = （InputSize + 2xPadding - KernelSize）/ Stride + 1</p>
+<h3 id="Pooling"><a href="#Pooling" class="headerlink" title="Pooling"></a>Pooling</h3><p>平均池化（Average Pooling）、最大池化（Max Pooling）、全局平均池化（Global Average Pooling）、全局最大池化（Global Max Pooling）。</p>
+<p>平均池化是线性的，最大池化是非线性的（能增加网络拟合程度、以及不变性）。</p>
+<p>全局平均池化通常用在网络分类的最后一层，因为最后一层做分类时希望提取全局信息并且信息损失最少。</p>
+<h3 id="激活函数"><a href="#激活函数" class="headerlink" title="激活函数"></a>激活函数</h3><p>ReLU、PReLU（a为可学习的参数）/Leaky ReLU、ELU</p>
+<h3 id="批量归一化（Batch-Normalization）"><a href="#批量归一化（Batch-Normalization）" class="headerlink" title="批量归一化（Batch Normalization）"></a>批量归一化（Batch Normalization）</h3><p>BN层将输入的batch在channel维度做均值为0方差为1的归一化，并计算batch的移动平均均值和平均方差，并在训练过程中不断更新。移动均值和方差是带权重的均值，类似于一个滑动窗口，当前的均值权重一般更大。</p>
+<p>一般会对归一化后的结果做个线性变换（scale and shift），即乘上一个γ加上一个β，如下公式，能给网络一定的自由度能使BN发挥出效果。</p>
+<p><img src=".%5Cimgs%5Cbn.png"></p>
+<p>训练时采用当前均值方差，并更新移动平均的均值和方差，预测是采用移动平均的均值和方差。</p>
+<h2 id="上采样技术"><a href="#上采样技术" class="headerlink" title="上采样技术"></a>上采样技术</h2><h3 id="Unpooling"><a href="#Unpooling" class="headerlink" title="Unpooling"></a>Unpooling</h3><p>Zero Unpooling 就是进行间隔插0进行上采样，原数值的相对位置不变。</p>
+<p>Max Unpooling 是在做MaxPooling的时候记录下Max值的位置，在上采样的时候恢复这些值的位置，其余的位置补0插值。</p>
+<p><img src=".%5Cimgs%5Cunpooling.png"></p>
+<p>UnPooling在实际项目中非常少用，因为插入了太多的无效信息。</p>
+<h3 id="Interpolation-插值"><a href="#Interpolation-插值" class="headerlink" title="Interpolation 插值"></a>Interpolation 插值</h3><p>Nearest Interpolation 最近邻插值，就是对插入点赋值其距离最近的原始点的数值。</p>
+<p>Bilinear Interpolation 双线性插值，如下图，就是利用插入点周围4个点的坐标，先进行x轴的线性计算，以距离为权重计算出x轴上R1,R2两个点的值，再用这两个点的值进行y轴的线性计算，得到插入点P的值。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\bilinear.png"></p>
+<p>Bicubic Interpolation 双立方插值，如下公式，x和y分别从0次幂到3次幂，所以总共会有16个方程，要求解16个未知数aij，将P点坐标的周围4个点坐标，以及每个点的x方向、y方向、xy方向的梯度共16组（x，y）带入方程解出16个未知数aij后，便可依照公式计算出P点的值。也可以通过卷积的方法计算aij。</p>
+<img src="F:\blog\CV\Autodriving\imgs\bicubic.png" style="zoom:25%;" />
+
+<h3 id="Transposed-Convolution-转置卷积"><a href="#Transposed-Convolution-转置卷积" class="headerlink" title="Transposed Convolution 转置卷积"></a>Transposed Convolution 转置卷积</h3><p>转置卷积也叫反卷积（Deconvolution），是类似于卷积反运算的运算。首先，现将卷积运算转为矩阵的表达形式，如下图，将右边输入的4x4的feature map拉伸成一维，根据卷积运算和矩阵运算的原理，可以将卷积核转为下边4x16维的矩阵，运算的得到的结果经过reshape后与卷积运算结果相同。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\transpose-convolution.png"></p>
+<p>转置卷积就是将上图中代表卷积运算的4x16的矩阵进行转置，然后用转置的矩阵，对输出维度的feature map拉伸成1维后进行运算，运算结果reshape后得到与输入的维度相同，如下图。</p>
+<img src="F:\blog\CV\Autodriving\imgs\transpose-convolution2.png" style="zoom: 67%;" />
+
+<p>转置卷积保持了连接关系，但是它只恢复了feature map的形状，不回复原来feature map的数值，它更多的是做为一种上采样方法。转置卷积和卷积的反向传播在数学上是等价的，因此也可以用卷积来实现转置卷积，实现的方法可以参考<a target="_blank" rel="noopener" href="https://github.com/vdumoulin/conv_arithmetic">用卷积实现转置卷积方法</a>，主要是通过卷积和转置卷积中padding和stride的对应关系来实现。</p>
+<p><strong>有空再仔细补转置卷积的理论。</strong></p>
+<p>卷积特征图大小计算公式</p>
+<p>O = (I + 2P – K) / S + 1</p>
+<p>I = (O – 1) * S + K – 2P</p>
+<p>转置卷积特征图大小计算公式</p>
+<p>O = (I – 1) * S + K – 2P</p>
+<h2 id="全卷积网络FCN"><a href="#全卷积网络FCN" class="headerlink" title="全卷积网络FCN"></a>全卷积网络FCN</h2><p>参考我的文章<a href="./FCn.md">FCN</a>。</p>
+<h2 id="U-Net-1"><a href="#U-Net-1" class="headerlink" title="U-Net"></a>U-Net</h2><p>参考我的文章<a href="./Unet.md">Unet</a>。</p>
+<h2 id="DeepLab-v3-1"><a href="#DeepLab-v3-1" class="headerlink" title="DeepLab-v3+"></a>DeepLab-v3+</h2>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/04/29/CV/Autodriving/%E6%97%A0%E4%BA%BA%E9%A9%BE%E9%A9%B6%E8%BD%A6%E9%81%93%E7%BA%BF%E5%88%86%E5%89%B2%E6%8A%80%E6%9C%AF/" data-id="cko2b3cup0006p4vc5yoq6dim" data-title="" class="article-share-link">Compartir</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-CV/Autodriving/Unet" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/04/29/CV/Autodriving/Unet/" class="article-date">
+  <time class="dt-published" datetime="2021-04-29T03:06:20.104Z" itemprop="datePublished">2021-04-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="U-Net模型详解"><a href="#U-Net模型详解" class="headerlink" title="U-Net模型详解"></a>U-Net模型详解</h1><h3 id="模型结构-Encoder-Decoder"><a href="#模型结构-Encoder-Decoder" class="headerlink" title="模型结构(Encoder-Decoder)"></a>模型结构(Encoder-Decoder)</h3><p>U-Net最早是在医学图像领域提出用于医学图像的语义分割的模型，它的网络结构如下图所示。输入的是572x572维的灰度图，经过5层卷积，每层都是用3x3的卷积核，且不加padding，因此每次卷积过后图像维度会减2，每层卷积后会是用2x2的MaxPooling。第五层卷积结束后图像维度是28x28，通道数是1024，对其做2x2的上采样卷积（可参考<a href="./%E6%97%A0%E4%BA%BA%E9%A9%BE%E9%A9%B6%E8%BD%A6%E9%81%93%E7%BA%BF%E5%88%86%E5%89%B2%E6%8A%80%E6%9C%AF.md">转置卷积</a>），得到图像维度是56x56，通道数是512的特征图。再将第四层卷积的输出经过crop操作将64x64变为56x56后，与第五层上采样后的特征图进行concat操作，得到通道为1024大小为56x56的特征图。再对其进行同样的卷积、上采样并与再上一层的输出crop后进行concat，总共进行4次上采样。最后一层采用1x1的卷积，输出通道为2，大小为388x388的医学图像语义分割图。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\Unet.png"></p>
+<h3 id="Overlap-tile-strategy"><a href="#Overlap-tile-strategy" class="headerlink" title="Overlap-tile strategy"></a>Overlap-tile strategy</h3><p>Overlap-tile strategy是医学数字图像处理领域常用的策略。U-Net的图片在输入网络前做了mirror-padding的图像处理，这是生物医学领域中常用的一种方法。原理是将图像边缘的一些像素做了一些对称复制的镜像padding，增大了图片的尺寸。它的好处是避免zero-padding引入的无用信息，因为在医学图像领域，图像边缘都会有不完整细胞，若使用通常的zero-padding，在计算中会降低不完整细胞边缘的权重，因此通常会采用mirror-padding。U-Net中的输入图片尺度是经过mirror-padding后的572x572，而输出维度388x388则是mirror-padding前原始图像的维度。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\overlap-tile.png"></p>
+<h2 id="U-Net相似网络"><a href="#U-Net相似网络" class="headerlink" title="U-Net相似网络"></a>U-Net相似网络</h2><h3 id="Hourglass"><a href="#Hourglass" class="headerlink" title="Hourglass"></a>Hourglass</h3><p>用于人体姿态估计，用于解决关键点定位问题。</p>
+<p><img src=".%5Cimgs%5Chourglass.png"></p>
+<h3 id="Pix2Pix"><a href="#Pix2Pix" class="headerlink" title="Pix2Pix"></a>Pix2Pix</h3><p>主要是用于做图像生成。</p>
+<h2 id="UNet网络结构修改"><a href="#UNet网络结构修改" class="headerlink" title="UNet网络结构修改"></a>UNet网络结构修改</h2><h3 id="BackBone"><a href="#BackBone" class="headerlink" title="BackBone"></a>BackBone</h3><h4 id="ResNet"><a href="#ResNet" class="headerlink" title="ResNet"></a>ResNet</h4><p>当神经网络的深度越深的时候，会发现其效果可能还没有没那么深的模型训练的效果好，这是由于网络训练过程中产生的梯度消失和梯度爆炸导致的。ResNet提出了残差结构，如下图，这个结构能让网络在深层的时候更容易学习与优化。</p>
+<p><img src=".%5Cimgs%5Cresnet.png"></p>
+<p>从下图的实验结果可以看出，34层的深度网络在没添加Residual结构的时候，训练时的错误率是比18层的网络要高的，而完全没达到网络越深模型效果越好的预期。但是加入了Residual结构后，ResNet-34的网络训练的正确率可以明显低于ResNet-18网络的训练效果，使得网络的深度发挥了优势。</p>
+<p><img src=".%5Cimgs%5Cresidual.png"></p>
+<p>但作者发现使用basic block后增大了许多的计算量，于是他设计了一种bottleneck结构，在进行运算时，先用1x1的卷积将数据降维，进行完3x3卷积之后再将数据升回原来的维度，如下图。<img src=".%5Cimgs%5Cbottleneck.png"></p>
+<h3 id="Variations-of-ResNet"><a href="#Variations-of-ResNet" class="headerlink" title="Variations of ResNet"></a>Variations of ResNet</h3><h4 id="Res2Net"><a href="#Res2Net" class="headerlink" title="Res2Net"></a>Res2Net</h4><p>Res2Net实际中用的并不多。它的原理是将1x1卷积后的结果分成4组，第一组直接复制，第二组经过一个3x3卷积，第三组先跟第二组的结果做融合后经过一个3x3卷积，第四组跟第三组的结果做融合后经过一个3x3卷积，最后将四组结果再拼起来。</p>
+<p>Res2Net运用了scale的思想，我们知道两个3x3的卷积串联后的感受野等价于一个5x5的卷积，三个3x3的卷积串联后的感受野等价于一个7x7的卷积。于是Res2Net的操作相当于从不同感受野尺度上提取的特征后进行融合。</p>
+<img src=".\imgs\res2net.png" style="zoom:33%;" />
+
+<h4 id="ResNeXt"><a href="#ResNeXt" class="headerlink" title="ResNeXt"></a>ResNeXt</h4><p>ResNeXt实际中使用的比较多，它采用的是分组卷积(Group Convolution)的思想。分组卷积中，每组卷积中的特征信息是隔离的，最后再将每组卷积进行相加。</p>
+<img src=".\imgs\ResNeXt.png" style="zoom:33%;" />
+
+<p>这样操作的目的是减小计算量。</p>
+<h4 id="SE-ResNet"><a href="#SE-ResNet" class="headerlink" title="SE-ResNet"></a>SE-ResNet</h4><p>Squeeze-and-Excitation Module（SE Module），可参考<a href="../facebagnet&attention/SENet.md">SENet</a>。</p>
+<img src="F:\blog\CV\Autodriving\imgs\Se-Resnet.png" style="zoom:33%;" />
+
+<p><img src="F:\blog\CV\Autodriving\imgs\se-module.png"></p>
+<h4 id="SK-ResNet"><a href="#SK-ResNet" class="headerlink" title="SK-ResNet"></a>SK-ResNet</h4><p>Selective Kernel Module (SK Module)，原理是将Residual Module中的3x3卷积替换成SK Module来实现Split Attention。 </p>
+<img src="F:\blog\CV\Autodriving\imgs\sk-resnet.png" style="zoom:33%;" />
+
+<p>SK Module的具体结构如下图，对输入的特征分别做3x3和5x5的卷积，然后将卷积结果相加，经过Global Average Pooling和全连接后，通过Softmax得到之前3x3和5x5的卷积结果的Attention。对应的Attention相乘后再相加得到带有Split Attention的输出特征。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\sk-module.png"></p>
+<p>SK-ResNet作者认为不同尺度的卷积可以提取到不同的特征，通过Softmax可以实现对这些不同特征的选择。</p>
+<h4 id="ResNeSt"><a href="#ResNeSt" class="headerlink" title="ResNeSt"></a>ResNeSt</h4><p>将ResNeXt的分组卷积和SK-ResNet中的SK Module结合起来。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\resnest.png"></p>
+<h2 id="UNet"><a href="#UNet" class="headerlink" title="UNet++"></a>UNet++</h2><p>UNet++的原理是将不同深度的UNet融合在一个网络中，可以得到不同深度UNet网络的融合结果，如下图。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\UNet++.png"></p>
+<p>用4层深度的UNet++ L4来举例，第一层除了X(0,0)，其他的都是与原图尺寸相同的、经过不同网络深度的输出，这四个输出都用于计算Loss。四个输出可以做融合也可以用来做剪枝。剪枝就是如果发现X(0,3)和X(0,4)的输出大致相同，则可以将L4的分支剪掉，在做预测的时候就只预测到L3就好。</p>
+<p>所以UNet++最大的特点就是，训练的时候可以训练4层，预测的时候可以按照训练效果和场景需求，只使用1/2/3层的预测值。这解决了当训练UNet模型的时候，不知道选择多深的网络合适从而避免了训练多个深度的模型，而实现只训练一个模型达到不同深度的训练效果。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/04/29/CV/Autodriving/Unet/" data-id="cko2b3cum0004p4vc4ay8f3vl" data-title="" class="article-share-link">Compartir</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-CV/Autodriving/segmentation" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/04/29/CV/Autodriving/segmentation/" class="article-date">
+  <time class="dt-published" datetime="2021-04-29T03:06:20.080Z" itemprop="datePublished">2021-04-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="图像分割"><a href="#图像分割" class="headerlink" title="图像分割"></a>图像分割</h1><p>图像分割下主要分为一下三个领域：语义分割、实例分割、全景分割。语义分割是图像分割里最早的任务，是将图像中相同类的像素用同一个标签表示出来；实例分割是图像分割与检测相结合的一个任务，类似于更细粒度的目标检测，对每个目标得到bbox后，对bbox中的具体的目标做一个mask，得到其更精细的边缘，它与语义分割最大的不同点是，实例分割会将相同的类的不同实例区分开来，不仅可以知道实例的类别，同时得到实例的id；全景分割本质就是语义分割+实例分割，对感兴趣的前景部分（论文里一般称为thing）做实例分割，不感兴趣的背景部分（stuff）做语义分割。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\segmentation.png"></p>
+<h2 id="语义分割进展"><a href="#语义分割进展" class="headerlink" title="语义分割进展"></a>语义分割进展</h2><h3 id="HRNet"><a href="#HRNet" class="headerlink" title="HRNet"></a>HRNet</h3><p>传统的深度学习网络都是随着网络深度的增加feature map大小会不断地缩小，这在语义分割中会造成定位精度降低的问题。HRNet的思想就是在网络不断加深的时候保持feature map的大小不变，这样就能解决定位精度降低的问题。</p>
+<p>HRNet一开始可能会先用几个卷积操作将图片尺寸缩小到1/4左右，避免原图过大消耗大量的计算资源，之后便采用随着深度增加图片尺寸不变的方法。HRNet的网络结构如下图，它的1x的输入可能已经是resize过后的图片，经过两次卷积后，会有一个2倍下采样的分支，两个分支都进行两次卷积后，会有一个融合操作，1x的分支会下采样与2x分支融合，2x的分支会上采样与1x分支融合。以此类推不难理解，1x和2x两个分支在融合后经过一次卷积，又会有一个4x的分支，并且4x分支由1x和2x下采样融合得到，1x和2x分支又经历了一次融合。最后三个分支经过一次卷积，一次融合，1x分支的结果便是HRNet的输出。下采样的方法可以用conv+stride；上采样的方法可以用transpose conv或双线性插值。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\hrnet.png"></p>
+<p>融合的目的是将其他分辨率分支的信息相互传递，让输出包含的不同尺寸的信息。HRNet的融合方法如下，首先本分支会经过一个卷积，需要上采样的分支会先用双线性插值后接一个1x1的卷积（图中蓝色块操作），下采样的分支会通过stride+3x3conv来进行下采样（图中绿色块操作）。最后将三个分支的结果相加完成融合。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\hrnet2.png"></p>
+<h3 id="HigherHRNet"><a href="#HigherHRNet" class="headerlink" title="HigherHRNet"></a>HigherHRNet</h3><p>HigherHRNet主要是对HRNet的输出做了改进，作者认为输出是原图的1/4大小还不够，于是在HRNet输出的基础上加上一个模块，使得输出是原图大小的1/2。</p>
+<p>如下图，左边是HRNet，右边将HRNet输出进行一次卷积后，与输出进行concat，经过一个deconv模块上采样到1/2，最后经过3次卷积得到1/2分支的输出结果。可以看到HigherHRNet在1/4分支和1/2分支都有输出结果。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\HigherHRNet.png"></p>
+<h3 id="DANet（Dual-Attention-Network）"><a href="#DANet（Dual-Attention-Network）" class="headerlink" title="DANet（Dual Attention Network）"></a>DANet（Dual Attention Network）</h3><p>DANet使用到了双注意力模块融合，他的具体网络结构如下，通过ResNet网络提取特征后，分别输入到Position注意力模块和Channel注意力模块，得到两个模块的注意力机制特征后进行相加融合后得到语义分割结果。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\danet1.png"></p>
+<p>Position和Channel注意力模块如下：</p>
+<p>Position模块有4个分支，将<strong>A</strong>通过一层卷积后得到<strong>B</strong>，并reshape成（H*W）x C的维度，<strong>A</strong>通过一层卷积后得到<strong>C</strong>，并reshape成C x（H*W）的维度，将reshape后的<strong>B</strong>转置后与reshape后的<strong>C</strong>进行矩阵相乘，再经过softmax后得到的是和为1的（H*W）x（H*W）维度的矩阵<strong>S</strong>，<strong>S</strong>就是提取到的Position注意力信息。<strong>A</strong>通过一层卷积后得到<strong>D</strong>，并reshape成C x（H*W）的维度后，与<strong>S</strong>进行矩阵相乘得到C x（H*W）维度的矩阵，最后reshape回C x H x W维度后与<strong>A</strong>相加就得到了带有Position Attention的feature map。</p>
+<p>Position Attention Module中，（H*W）x（H*W）代表着图像中每个点在Channel方向上的向量之间的余弦相似度，相似度约大，经过softmax后的权重就越高。这样设计便实现了空间维度上的相似度度量来作为Attention。</p>
+<p>Channel模块也较为相似，将<strong>A</strong>通过reshape和转置后得到（H x W）x C维度的矩阵，另一个分支将<strong>A</strong>通过reshape得到C x（H x W）维度的矩阵，将这两个矩阵相乘后经过Softmax得到C x C维度的和为1的矩阵<strong>X</strong>，<strong>X</strong>就是Channel注意力信息。再将<strong>A</strong>通过reshape得到C x（H x W）维度的矩阵后与<strong>X</strong>做矩阵相乘得到C x（H x W）维度的矩阵后reshape回C x H x W维度后与<strong>A</strong>相加就得到了带有Channel Attention的feature map。</p>
+<p>与Position Attention Module类似，Channel Attention Module中，C x C代表着图像中每个Channel的所有像素组成的向量之间的余弦相似度，相似度约大，经过softmax后的权重就越高。这样设计便实现了Channel维度上的相似度度量来作为Attention。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\danet2.png" alt="danet2"></p>
+<h3 id="OCRNet（Object-Contextual-Representations）"><a href="#OCRNet（Object-Contextual-Representations）" class="headerlink" title="OCRNet（Object-Contextual Representations）"></a>OCRNet（Object-Contextual Representations）</h3><p>OCR的思想是，希望若某个像素属于车的话，那它的预测结果应该由所有车的像素点来共同作用预测，而不是像DeepLab中ASPP中其他离散的不属于车像素的点来作用。Object-Contextual指的是图像中物体像素点周围的像素点。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\ocrnet.png"></p>
+<p>OCRNet将backbone提取的feature map，先通过Soft Object Regions做一个粗分割，通过Loss与gt计算后，得到每个物体的粗糙的mask输出。后将feature map看做是Pixel Representation与粗糙的mask进行相乘并求和，得到Object Region Representation，即<strong>f</strong>k，代表着每一个物体的特征。用像素特征<strong>x</strong>与物体特征<strong>f</strong>k，计算出像素和物体的相关度量Pixel-Region Relation，做法是将1x1卷积后的<strong>x</strong>与<strong>f</strong>k进行点乘后，用softmax得到像素与物体之间相关的权重<strong>w</strong>，即Pixel-Region Relation，类似于Attention的思想。最后将<strong>w</strong>与<strong>f</strong>k点乘后相加得到Object-Contextual Representation，与Pixel Representation进行concat得到Augmented Representation后再去做分类。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\ocrnet2.png" alt="ocrnet2"></p>
+<p>若是在Soft Object Regions中，不使用粗糙的mask而是直接使用gt结果会如何？作者通过实验发现直接使用gt的GT-OCR实验的结果更好，如下表。GT-OCR是OCR的理论上界。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\ocrnet3.png" alt="ocrnet3"></p>
+<h2 id="实例分割概述"><a href="#实例分割概述" class="headerlink" title="实例分割概述"></a>实例分割概述</h2><h3 id="Mask-RCNN"><a href="#Mask-RCNN" class="headerlink" title="Mask RCNN"></a>Mask RCNN</h3><p>Mask RCNN基于Faster RCNN，是基于检测来做实例分割的方法。Mask RCNN相对于Faster RCNN多了一个Mask的分支，将RoIAlign后的结果继续进行卷积，最后得到Bbox中的mask。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\maskrcnn.png"></p>
+<h3 id="SOLO"><a href="#SOLO" class="headerlink" title="SOLO"></a>SOLO</h3><p>SOLO是基于YOLO思想的one-stage实例分割方法。</p>
+<p>与YOLO一样，SOLO将图像分为S x S的网格，经过FCN后分别有Category Branch和Mask Branch两个分支。</p>
+<p>Category Branch中，输出是C x S x S维度的矩阵，其中C是类别数，每个网格只预测一个物体，S x S即每个网格属于某个物体类别的概率。Mask Branch中，输出是H x W x S^2，S^2对应着网格对应的每个目标，即Category Branch中的S x S每一个网格都要预测一个mask。两个分支结合便得到了实例分割结果。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\solo.png"></p>
+<p>下图是分支的细节，Category Branch通过Align插值，得到S x S x 256的feature map后通过一些卷积操作就得到了S x S x C的输出；而Mask Branch多加了两层坐标的信息，进行了Coordinate Conv，目的是让定位更加准确，最后还做了一个上采样。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\solo2.png" alt="solo2"></p>
+<h3 id="SOLOv2"><a href="#SOLOv2" class="headerlink" title="SOLOv2"></a>SOLOv2</h3><p>SOLOv2解决了SOLO中无效特征计算过多的问题，它的思想是将Mask Branch中的S^2设定成动态的kernel，若Category Branch中只预测出3个物体，则将Mask Branch中的S^2修改成3，这样预测出来的mask就与这3个物体一一对应，减少了无用特征的计算。</p>
+<p>SOLOv2的原理如下，留个坑，以后看论文再写。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\solov2.png" alt="solov2"></p>
+<p><img src="F:\blog\CV\Autodriving\imgs\solov2-1.png" alt="solov2-1"></p>
+<h3 id="BlendMask"><a href="#BlendMask" class="headerlink" title="BlendMask"></a>BlendMask</h3><p>BlendMask思想是用不同的feature map预测不同的特征，最后用一个融合系数与特征的基向量相乘，将所有结果相加就得到了mask。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\blendmask-attns.png"></p>
+<p>首先通过Backbone和FPN得到一系列feature map，选出部分特征进入Bottom Module负责预测基向量Bases。feature map之后用于预测Bbox和Attns，将用Bbox从Bases中提取出一个小检测框，再与Attns融合后得到mask结果。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\blendmask.png"></p>
+<img src="F:\blog\CV\Autodriving\imgs\blendmask-attention.png" style="zoom:33%;" />
+
+<h2 id="全景分割概述"><a href="#全景分割概述" class="headerlink" title="全景分割概述"></a>全景分割概述</h2><h3 id="Panotic-DeepLab"><a href="#Panotic-DeepLab" class="headerlink" title="Panotic - DeepLab"></a>Panotic - DeepLab</h3><p>顾名思义Panotic-DeepLab是基于DeepLab的全景分割。首先用DeepLab做语义分割，通过语义分割先得到前景的Foreground Mask。然后Panotic-DeepLab还会预测每一个前景物体的中心点Center Prediction，还会预测一个Center Regression，融合后就可以得到实例分割。最后将语义分割和实例分割融合成全景分割。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\panoptic-deepLab.png"></p>
+<p>Panotic-DeepLab网络结构如下图。上半部分的分支是常规的DeepLabV3+语义分割的分支。下半部分的分支最后Decoder输出的channel为128的特征，通过卷积运算分别输出channel为1的Instance Center Prediction和channel为2的Instance Center Regression。Instance Center Prediction判断每个像素是否为某个物体的中心点；Instance Center Regression是每个像素点与其中心点的一个offset向量。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\panoptic-deepLab2.png"></p>
+<p>Center Prediction：</p>
+<p>​    NMS / Maxpooling-7, threshold-0.1, top-k 200</p>
+<p>Center Regression</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\centerregression.png"></p>
+<p>Confidence</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\confidence.png"></p>
+<h3 id="Panoptic-segmentation-from-dense-detections"><a href="#Panoptic-segmentation-from-dense-detections" class="headerlink" title="Panoptic segmentation from dense detections"></a>Panoptic segmentation from dense detections</h3><p>通过R-50-FPN输出多尺度的feature map，对每个尺度都会生成一个定位分支Localization tower和语义分支Semantics tower。Localization tower会对每个像素都输出一个Bbox和中心度Centerness；Semantics tower会输出每个Bbox的分类。在每个分支输出之前，还会对每个尺度的特征上采样到统一维度后concat来得到多尺度的融合特征Global Levelness，用于预测每个像素使用哪个level的Bbox。</p>
+<p>埋坑。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\segm-from-dense-det.png"></p>
+<h3 id="UPSNet"><a href="#UPSNet" class="headerlink" title="UPSNet"></a>UPSNet</h3><p>UPSNet是在MaskRCNN的基础上加上Semantic Head做语义分割就可以了。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\upsnet.png"></p>
+<p>Panoptic Head用于制定融合的策略。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\upsnet2.png" alt="upsnet2"></p>
+<h3 id="VPSNet"><a href="#VPSNet" class="headerlink" title="VPSNet"></a>VPSNet</h3><p>VPSNet提出了视频全景分割</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\vpsnet.png"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/04/29/CV/Autodriving/segmentation/" data-id="cko2b3cuo0005p4vc0tzthd2b" data-title="" class="article-share-link">Compartir</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-CV/Autodriving/ResNet" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/04/29/CV/Autodriving/ResNet/" class="article-date">
+  <time class="dt-published" datetime="2021-04-29T03:06:20.078Z" itemprop="datePublished">2021-04-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="ResNet"><a href="#ResNet" class="headerlink" title="ResNet"></a>ResNet</h1><h3 id="ResNet-1"><a href="#ResNet-1" class="headerlink" title="ResNet"></a>ResNet</h3><p>Res2Net</p>
+<p>ResNeXt</p>
+<p>SE-ResNet</p>
+<p>SK-ResNet</p>
+<p>ResNeSt</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/04/29/CV/Autodriving/ResNet/" data-id="cko2b3cuj0002p4vc7tkg578p" data-title="" class="article-share-link">Compartir</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-CV/Autodriving/modelevalanddeploy" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/04/29/CV/Autodriving/modelevalanddeploy/" class="article-date">
+  <time class="dt-published" datetime="2021-04-29T03:06:20.047Z" itemprop="datePublished">2021-04-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="语义分割模型评估与部署"><a href="#语义分割模型评估与部署" class="headerlink" title="语义分割模型评估与部署"></a>语义分割模型评估与部署</h1><h2 id="语义分割评价指标"><a href="#语义分割评价指标" class="headerlink" title="语义分割评价指标"></a>语义分割评价指标</h2><h3 id="像素精度-Pixel-Accuracy（PA）"><a href="#像素精度-Pixel-Accuracy（PA）" class="headerlink" title="像素精度 Pixel Accuracy（PA）"></a>像素精度 Pixel Accuracy（PA）</h3><p>PA指标的计算如下公式，分子是预测为i类，实际也为i类像素的数量，即TP，包括前景和背景；分子为所有像素点的数量。</p>
+<img src="F:\blog\CV\Autodriving\imgs\pa.png" style="zoom:50%;" />
+
+<p>以下图为例子，红色部分为gt，蓝色部分为pred，绿色为正确预测的像素。所以下图中TP为前景预测正确的1个像素和背景预测正确的93个像素，PA值为94%，但是实际模型精度并不是特别好，我们所关注的前景只预测对了1个像素但PA却已高达94%。由于前景与背景类别严重不平衡，PA指标会倾向于样本多的那类，这是PA指标的一个很大的弊端，所以很少使用。</p>
+<img src="F:\blog\CV\Autodriving\imgs\pa2.png" style="zoom: 50%;" />
+
+<h3 id="平均像素精度-Mean-Pixel-Accuracy（MPA）"><a href="#平均像素精度-Mean-Pixel-Accuracy（MPA）" class="headerlink" title="平均像素精度 Mean Pixel Accuracy（MPA）"></a>平均像素精度 Mean Pixel Accuracy（MPA）</h3><p>MPA指标的分母不再是全部像素，而是第i类的总像素的数量。先把每一类的PA计算出来，最后将所有类的PA做一个平均得到MPA。</p>
+<img src="F:\blog\CV\Autodriving\imgs\mpa.png" style="zoom:50%;" />
+
+<p>以下图为例，左图中前景的PA是1/4，背景的PA是93/96，因此左图的MPA为1/2*(1/4 + 93/96) = 0.609375；右图中前景的PA是1/4，背景的PA是91/96，右图的MPA为1/2*(1/4 + 91/96) = 0.598958。可以明显看出，右图的预测效果是比左图要差的，但是他们的MPA只相差0.01，从指标上看差别并不大，但实际上右图的错误率要比左图高很多，因此MPA对样本不均衡的模型评估好坏程度不太符合直观感受。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\mpa2.png" alt="mpa2"></p>
+<h3 id="平均交并比-Mean-Intersection-over-Union（MIoU）"><a href="#平均交并比-Mean-Intersection-over-Union（MIoU）" class="headerlink" title="平均交并比 Mean Intersection over Union（MIoU）"></a>平均交并比 Mean Intersection over Union（MIoU）</h3><p>MIoU这是业界常用的评估指标之一。MIoU公式如下，分子其实就是gt与pred的交集，分母是gt+pred-交集，即gt与pred的并集，交集除以并集就是IoU。将每一类的IoU比做平均就得到了MIoU。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\miou.png"></p>
+<p>如下图举例，左图中前景的IoU为1/7，背景的IoU为93/99，所以左图的MIoU为1/2*(1/7 + 93/99) = 0.54；右图中前景的IoU为1/9，背景的IoU为91/99，所以左图的MIoU为1/2*(1/9 + 91/99) = 0.51。MIoU相比MPA更能分辨模型好坏，比较符合直观感受。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\miou2.png" alt="miou2"></p>
+<h2 id="模型测试"><a href="#模型测试" class="headerlink" title="模型测试"></a>模型测试</h2><h3 id="精度测试"><a href="#精度测试" class="headerlink" title="精度测试"></a>精度测试</h3><p>基准测试集</p>
+<p>各类精度统计/混淆矩阵</p>
+<p>各类准确率</p>
+<p>各类召回率</p>
+<p>总体精度指标</p>
+<p>单元测试（单case测试）</p>
+<h3 id="性能测试"><a href="#性能测试" class="headerlink" title="性能测试"></a>性能测试</h3><p>时间开销</p>
+<p>内存占用</p>
+<p>CPU负载/功耗</p>
+<p>分机型测试</p>
+<p>分case测试</p>
+<h3 id="服务端部署简介"><a href="#服务端部署简介" class="headerlink" title="服务端部署简介"></a>服务端部署简介</h3>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/04/29/CV/Autodriving/modelevalanddeploy/" data-id="cko2b3cuk0003p4vcc1fgd3gp" data-title="" class="article-share-link">Compartir</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-CV/Autodriving/FCN" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/04/29/CV/Autodriving/FCN/" class="article-date">
+  <time class="dt-published" datetime="2021-04-29T03:06:20.027Z" itemprop="datePublished">2021-04-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="全卷积网络"><a href="#全卷积网络" class="headerlink" title="全卷积网络"></a>全卷积网络</h1><p>全卷积网络是深度学习语义分割的开山之作。在通常的CNN中，经过全连接层后，特征的维度将会变成Batch x Channel，但在语义分割中的label是需要BxCxWxH的形式的。因此我们可以用一些卷积操作来等价全连接运算的同时来满足语义分割的需要。如下图，假设卷积全连接之前的维度是（Bx256x7x7），可以用kernel size为7x7，channel为4096的卷积核进行卷积运算便得到维度为（Bx4096x1x1）的特征，再通过1x1的卷积，改变通道维度，便可以等价之后的全连接操作。</p>
+<img src="F:\blog\CV\Autodriving\imgs\fcn.png" style="zoom: 50%;" />
+
+<p>因为FCN没有了全连接层，因此输入图片的维度可以使任意的，最后可以将输出进行上采样来得到我们想要的维度。</p>
+<h3 id="Padding-100"><a href="#Padding-100" class="headerlink" title="Padding-100"></a>Padding-100</h3><p>FCN作者在源码中对输入图像做了一个Padding-100的操作，这样可以保证FCN网络输出一个比较大尺寸的feature map，这也是为了保证图像在进行等价全连接的7x7卷积运算中不会因为feature map尺寸太小而发生维度报错。</p>
+<h3 id="In-network-Upsampling"><a href="#In-network-Upsampling" class="headerlink" title="In-network Upsampling"></a>In-network Upsampling</h3><p>In-network Upsampling的有别于后处理上采样（如插值）的好处是，它可以通过转置卷积来实现，并且转置卷积中的参数可以在训练中进行学习，而后处理的上采样的参数是固定的。通过In-network Upsampling可以实现一个端到端的网络。</p>
+<p>用双线性插值初始化转置卷积。kernel的权重为（1- dij/n)，其中dij为该点离kernel中心的距离，n为上采样的倍数。</p>
+<h3 id="Crop"><a href="#Crop" class="headerlink" title="Crop"></a>Crop</h3><p>由于在对输入图片做了Padding-100的操作，且在卷积的过程中如果遇到奇数，则会导致池化后的维度出现小数后向下取整，这会导致在上采样后feature map的维度也还是会与原始输入的维度不一致，这就需要用crop来处理。</p>
+<p>VGG-FCN中crop的offset值取19。计算过程如下：在第一层卷积中，输入的维度为H，Padding为100，kernel size为3，stride为1，根据公式第一层卷积的输出维度为（H + 2x100 - 3)/1 + 1 = (H + 198)。经过5层卷积层输出的维度为(H + 198)/32。在最后卷积化层中，kernel size为7，输出的维度为(H + 6)/32。经过In-network Upsampling的32倍上采样转置卷积，输出的维度为（(H + 6)/32 - 1) x 32 + 64 = H + 38。因此VGG-FCN中offset值取38/2=19。</p>
+<p>作者认为只是简单的32倍上采样的话，得到的结果会过于粗糙，因此也提出了不同尺度的16倍和8倍上采样的方法。首先将32倍上采样前的feature map先进行一个2倍的上采样，然后将第四层卷积后的feature map进行一个1x1的卷积使得channel维度与2倍的上采样后的维度一样，再对其进行crop，这两步构成了pool4的skip操作，其中crop操作的offset通过上文类似的计算得到值为5。将skip操作后pool4和2倍的上采样后的conv7相加，再上采样16倍，再进行offset为27的crop便得到FCN-16s的输出。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\fcn-32s.png"></p>
+<p>FCN-16s还是不够精细，还需要FCN-8s。与FCN-16s的方法类似，先将pool3的进行skip操作，再将FCN-16s中16倍上采样前2x conv7和pool4相加的和做一个2倍的上采样后与skip操作（在这里是1x1卷积加offset=9的crop）后的pool3进行相加，最后进行8倍上采样后再crop处理（在这里offset=33），得到与输入尺寸一样的FCN-8s的输入。实验的结果如下图，可以发现添加了FCN-16s和FCN-8s后，得到的实验结果精细了很多。</p>
+<img src="F:\blog\CV\Autodriving\imgs\fcn-result.png" style="zoom: 25%;" />
+
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/04/29/CV/Autodriving/FCN/" data-id="cko2b3cuc0000p4vccid9dqwx" data-title="" class="article-share-link">Compartir</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-CV/Autodriving/DeepLab" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/04/29/CV/Autodriving/DeepLab/" class="article-date">
+  <time class="dt-published" datetime="2021-04-29T03:06:19.983Z" itemprop="datePublished">2021-04-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>[TOC]</p>
+<h1 id="DeepLab模型详解"><a href="#DeepLab模型详解" class="headerlink" title="DeepLab模型详解"></a>DeepLab模型详解</h1><h2 id="膨胀卷积-空洞卷积-Dilated-Atrous-Convolution"><a href="#膨胀卷积-空洞卷积-Dilated-Atrous-Convolution" class="headerlink" title="膨胀卷积/空洞卷积(Dilated/Atrous Convolution)"></a>膨胀卷积/空洞卷积(Dilated/Atrous Convolution)</h2><p>膨胀卷积的原理如下图所示，它的好处是在参数量不变的情况下同时扩大感受野。使用膨胀卷积后可以省去池化层，因为膨胀卷积可以在不缩小feature map的情况下增大感受野，而做Pooling运算的目的就是让feature map缩小后在kernel size不变的情况下可以增大卷积核的感受野。因此使用了膨胀卷积可以满足池化层的同时，不缩小feature map尺寸。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/dilated-conv.gif"></p>
+<p>经过膨胀卷积后特征的输出尺寸计算公式如下，正常卷积的公式是O=[(I+2P-K)/S] +1，空洞卷积只需要将K替换成D*(K-1)+1即可，化简后为O=[(I+2P-D*(K-1)-1/S] +1。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/dilated-conv2d.png"></p>
+<p>转置空洞卷积的计算公式如下，正常转置卷积的公式是O = (I – 1) * S + K – 2P，同样将K替换成D*(K-1)+1，化简后O = (I – 1) * S + D*(K-1) – 2P + 1。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/dilated-convtranspose2d.png"></p>
+<h2 id="DeepLab系列"><a href="#DeepLab系列" class="headerlink" title="DeepLab系列"></a>DeepLab系列</h2><h3 id="DeepLab-V1"><a href="#DeepLab-V1" class="headerlink" title="DeepLab V1"></a>DeepLab V1</h3><h4 id="DeepLab-V1算法流程"><a href="#DeepLab-V1算法流程" class="headerlink" title="DeepLab V1算法流程"></a>DeepLab V1算法流程</h4><p>DeepLab v1将输入图片经过VGG+Atrous Conv网络，输出的是原图1/8大小的粗糙的score map，经过8倍双线性插值上采样得到原图大小。之后经过Fully Connected CRF后便得到精细的score map。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/deeplabv1.jpg"></p>
+<h4 id="VGG-Atrous"><a href="#VGG-Atrous" class="headerlink" title="VGG+Atrous"></a>VGG+Atrous</h4><p>如下图，左边是VGG网络结构，右边是DeepLab V1对VGG的改造来是实现图像分割。首先是跟FCN同样操作的将VGG的全连接层进行卷积话，具体可参考<a href="./FCN.md">FCN详解</a>。然后移除最后两个Pooling层，并对最后两层的卷积改用空洞卷积，倒数第二层的膨胀系数是2，最后一层的膨胀系数是4。此外，由于膨胀卷积不改变feature map尺寸从而增大了计算量，DeepLab V1作者将最后一层的7x7卷积改成4x4或者3x3，目的是减小参数量。最后输出前的4096通道变成了1024通道，也是为了减小参数量。这样DeepLab V1的主要网络就诞生了。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/vggatrous.png"></p>
+<h4 id="CRF"><a href="#CRF" class="headerlink" title="CRF"></a>CRF</h4><p>CRF（Conditional Random Field）条件随机场是传统机器学习中概率图模型常用的方法，现在深度学习中已经很少用了。它是将每个像素点看做是一个状态节点，每个节点下一个状态的概率是其本身概率加上所有相邻像素对其状态转移概率（对应下图公式的第一项和第二项），下图公式的第一项是coarse score map输出的P(xi)求熵作为本点的贡献，第二项中P代表位置position，I代表亮度illumination（即图像的RGB），它由以w1为权重的关于position和illumination的双边滤波和以w2为权重的高斯模糊计算得到相邻点的贡献，其中双边滤波是位置越近亮度差异越小的点贡献越大，目的是保边；高斯模糊是为了使得输出更平滑。xi代表的是i像素的label，如果两个像素点的标签xi和xj相同的时候则不做计算。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/CRF.png"></p>
+<p>CRF后处理的计算量很大，速度大概是2fps，而神经网络的计算速度是8fps…</p>
+<h4 id="Muiti-Scale-Prediction"><a href="#Muiti-Scale-Prediction" class="headerlink" title="Muiti-Scale Prediction"></a>Muiti-Scale Prediction</h4><p>DeepLab V1运用了多尺度预测，将图片做上下采样的尺度变换，经过网络输出结果后再反变换回原来的尺度，对多个尺度的结果进行融合便得到Muiti-Scale Prediction，即下表中的MSc。</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/msc.png" style="zoom: 50%;" />
+
+<p>下图中input stride就是dilate rate膨胀率，下表的实验可以看出，在缩小kernel size同时增大input stride的同时，感受野不变，参数量又134.3M降到了20.5M，且mIOU值持平情况下运算速度从1.44fps提升到4.84。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/msc2.png"></p>
+<h3 id="DeepLab-V2"><a href="#DeepLab-V2" class="headerlink" title="DeepLab V2"></a>DeepLab V2</h3><p>DeepLab V2跟V1版本改动不算很大，主要的改进是用了ResNet，ASPP和Learning rate Policy。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/deeplabv2.jpg"></p>
+<h4 id="backbone"><a href="#backbone" class="headerlink" title="backbone"></a>backbone</h4><p>把VGG替换成ResNet。</p>
+<h4 id="Atrous-Spatial-Pyramid-Pooling（ASPP）"><a href="#Atrous-Spatial-Pyramid-Pooling（ASPP）" class="headerlink" title="Atrous Spatial Pyramid Pooling（ASPP）"></a>Atrous Spatial Pyramid Pooling（ASPP）</h4><p><strong>这部分是V2的重点。</strong></p>
+<p>在V1中采用了多尺度计算的后处理，V2为了将多尺度思想融合到网络里，设计了ASPP。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/aspp.png"></p>
+<p>ASPP如上图，用不同dilate rate的卷积核对原图做并行计算。dilate rate不同，感受野大小也不同，便可以达到多尺度的目的。最后对并行计算的结果进行融合。</p>
+<p>作者采用了决策层的融合方法，将每个并行计算的结果进行sum-fusion。</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/aspp2.png" style="zoom:50%;" />
+
+<p>作者还设计了ASPP-S和ASPP-L，区别在于并行计算卷积核的膨胀率不同，分别是{2,4,8,12}和{6,12,18,24}，其中ASPP-S和V1中LargeFOV的感受野是相同的，实验结果对比可以看出在CRF之前ASPP方法是对模型精度有所提升的。</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/aspp3.png" style="zoom:67%;" />
+
+<h4 id="Learning-rate-Policy"><a href="#Learning-rate-Policy" class="headerlink" title="Learning rate Policy"></a>Learning rate Policy</h4><p>Learning rate Policy的目的是在网络学习的后期降低学习率使得模型向最优值靠近而不是在其左右震荡。在工业界常用的学习率调整策略有step和poly等，step就是在某个特定周期的时候乘上退化因子来降低学习率，poly的公式是lr = lr *（1 - iter/max_iter)^p，即每个周期都会根据公式来调整学习率。</p>
+<p>下表是V2的Learning rate Policy实验结果。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/lr-policy.png"></p>
+<h3 id="DeepLab-V3"><a href="#DeepLab-V3" class="headerlink" title="DeepLab V3"></a>DeepLab V3</h3><p>DeepLab V3版本相对于V2有了很大的改进，主要有一下四个方面：运用串/并行结构(Cascade/Parallel)、Mutil-grid、Modified ASPP和移除了CRF。</p>
+<p>DeepLab V3有Cascade和Parallel两个模式。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/deeplabv3.jpg.png"></p>
+<h4 id="DeepLab-V3-Cascade"><a href="#DeepLab-V3-Cascade" class="headerlink" title="DeepLab V3-Cascade"></a>DeepLab V3-Cascade</h4><p>DeepLab V3对ResNet稍微做了修改，在Block1处的stride改为2，因此尺寸从1/4变成了1/8，其次添加了Block5/6/7，它们都跟Block4相同，不过Block7的stride为1。Block7的输出尺寸为输入的1/256，尺寸太小不利于图像分割的定位。</p>
+<p>于是从Block4开始使用了空洞卷积，并且逐步提高了膨胀率，增大了感受野，最后输出的尺寸是原图像的1/16，如下图。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/cascade.png"></p>
+<h5 id="Multi-Grid"><a href="#Multi-Grid" class="headerlink" title="Multi_Grid"></a>Multi_Grid</h5><p>DeepLab V3-Cascade中还用到了<strong>Multi_Grid</strong>方法，Multi_Grid是（r1，r2，r3）三个参数。因为Block4对应的是下图中ResNet的conv5，conv5中不论是ResNet-50/101/152都是3组卷积，所以Multi_Grid的3个参数就对应着这3组卷积。也就是说，Block4/5/6/7使用的空洞卷积中，每组卷积的膨胀率都不一样，真实的dilated rate=rate * Multi_Grid。以Block4为例，rate = 2，Multi_Grid = (1，2，4)，则Block4中三组空洞卷积的膨胀率分别为(2，4，8)。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/Multi-Grid.png"></p>
+<h4 id="DeepLab-V3-Parallel"><a href="#DeepLab-V3-Parallel" class="headerlink" title="DeepLab V3-Parallel"></a>DeepLab V3-Parallel</h4><p>Parallel模式其实就是V2的ASPP。它也是从Block4开始使用了空洞卷积，但是Block5/6/7从串联变成了并联，其中Block4使用了Mutil_Grid，Block5/6/7不使用Mutil_Grid。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/parallel.png"></p>
+<h5 id="Modified-ASPP"><a href="#Modified-ASPP" class="headerlink" title="Modified ASPP"></a>Modified ASPP</h5><p>V3对ASPP做了一些小调整。首先砍掉了V2中的rate=24，是因为膨胀率太大导致卷积核膨胀后比feature map还要大，这会导致卷积核中膨胀出去的8个参数都无效，只有中间的参数进行了运算，这会将3x3 rate=24的膨胀卷积退化成1x1的卷积。于是作者索性用一个1x1的卷积代替了3x3 rate=24的膨胀卷积。</p>
+<p>并行结构中除了有以上ASPP的4个分支，还有一个Image Pooling的分支，它将Block4的结果做了个全局平均池化将feature map大小变成了1x1。这么做的目的是为了代替大的感受野，用于感受全局。ASPP的4个分支的输出尺寸都是一样的，Image Pooling的输出为1x1，所以要将1x1上采样成相同尺寸后，再进行concat和1x1 Conv，最后得到DeepLab V3-Parallel的输出。</p>
+<h4 id="实验结果"><a href="#实验结果" class="headerlink" title="实验结果"></a>实验结果</h4><p>DeepLab V3-Cascade的实验结果如下：</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/cascade-eval.png" style="zoom:33%;" />
+
+<p>Cascade模式中，最后使用Block7+MG(1,2,1)。OS是Output Stride，控制的是输入与输出的尺寸的比值，可以修改之前Block1的Stride来改变Output Stride。MS是Mutil-Scale，Flip是图片翻转，都是刷分的一些技巧。</p>
+<p>DeepLab V3-Parallel的实验结果如下：</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/parallel-eval.png" style="zoom:33%;" />
+
+<p>Parallel模式中，最后使用的是MG(1,2,4)+ASPP(6,12,18)+ImagePooling。其中MG(1,2,4)只对Block4使用。COCO是在COCO数据集上pretrain后再做实验。</p>
+<h3 id="DeepLab-V3-1"><a href="#DeepLab-V3-1" class="headerlink" title="DeepLab V3+"></a>DeepLab V3+</h3><p>DeepLab V3+对比与V3长得不太一样了。他的主要改进是使用了Modified Xception、深度可分离空洞卷积和Encoder-Decoder结构。</p>
+<p><img src="http://121.4.135.20/wp-content/uploads/2021/04/deeplabv3.png"></p>
+<h4 id="Modified-Xception"><a href="#Modified-Xception" class="headerlink" title="Modified Xception"></a>Modified Xception</h4><p>DeepLab V3+的backbone添加了Xception并修改了一下Xception的结构。</p>
+<p>下图是Modified Xception的网络结构，Xception网络分为3个部分：进入流、中间流和退出流。下图中的红色部分是Modified Xception对于Xception修改的地方，进入流和退出流中红色的Sep Conv原先都是Pooling，其中输出流最后一个红色Sep Conv 1536,3x3原先是GlobalAveragePooling，其余的原先都是MaxPooling，现在改成了Sep Conv，stride 2因此还是会下采样2倍。其次，中间流从原先的重复8次改为了重复16次。最后将BN层和ReLU加到了每个3x3 Sep Conv之后。</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/modified-xception.png" style="zoom:67%;" />
+
+<h4 id="深度可分离空洞卷积"><a href="#深度可分离空洞卷积" class="headerlink" title="深度可分离空洞卷积"></a>深度可分离空洞卷积</h4><p>深度可分离卷积(Depthwise Separable Convolution)用到了分组卷积的思想，它将Group = In_channel，每个通道成一组，单独进行卷积，如下图(a)，这样卷积后每个通道的信息是隔离的；然后使用1x1卷积进行Pointwise Conv，对每个通道之间的信息进行一个融合交换，如下图(b)，这样就实现了可分离。</p>
+<p>深度可分离空洞卷积，就是将深度可分离卷积步骤(a)中的卷积换成了空洞卷积，如下图(c)。</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/sep-conv.png" style="zoom:75%;" />
+
+<h4 id="Encoder-Decoder"><a href="#Encoder-Decoder" class="headerlink" title="Encoder-Decoder"></a>Encoder-Decoder</h4><p>DeepLab V3+使用了Encoder-Decoder结构，这是DeepLab V3+最关键的部分。DeepLab V3去掉了CRF的后处理，而DeepLab V3+认为去掉了CRF可能会带来一些弊端。CRF在计算中用到了image和score信息，于是DeepLab V3+希望通过设计一个神经网络Decoder来模拟CRF。</p>
+<p>Encoder部分其实就是DeepLab V3中parallel模式的ASPP，它的输出可以类比于score，是神经网络输出的一个编码信息。当OS = 16时，1x1 Conv输出的是1/16大小的feature map，在DCNN后会得到1/4大小的Low-Level feature map。将1/16进行一个4倍上采样，将1/4进行1x1 Conv压缩通道后，将它们concat组成新的feature map，经过3x3 Conv 再上采样4倍后得到了原图大小的分割结果。</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/deeplabv3.png" style="zoom:75%;" />
+
+<h4 id="设计与调参"><a href="#设计与调参" class="headerlink" title="设计与调参"></a>设计与调参</h4><h5 id="Decoder"><a href="#Decoder" class="headerlink" title="Decoder"></a>Decoder</h5><p>Decoder的思想就是将CRF操作转成Conv运算，以及如何融合low-level feature 和 score。</p>
+<p>low-level feature的1x1 Conv通道数应该设定成多少，作者通过实验发现设定成48通道的效果是最好的。在固定了1x1 Conv的结构后，作者对3x3 Conv的结构进行调整，实验后发现在使用Conv2（这里用的ResNet做实验）输出low-level feature并且用两个3x3，256 Conv得到的结果最好。</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/decoder-design.png" style="zoom: 33%;" />
+
+<h5 id="OS"><a href="#OS" class="headerlink" title="OS"></a>OS</h5><p>作者在实验中分了train OS和eval OS，说明在训练和验证阶段的OS可以是不同的。这是因为改变OS只需要在Block中改变stride，而网络参数是不改变的。</p>
+<p>作者发现在训练的时候OS=32的效果并不如16，并且在eval时OS取8会有更好的结果。</p>
+<img src="http://121.4.135.20/wp-content/uploads/2021/04/os-design.png" style="zoom:50%;" />
+
+<h3 id="DeepLab系列总结"><a href="#DeepLab系列总结" class="headerlink" title="DeepLab系列总结"></a>DeepLab系列总结</h3><p>• 空洞卷积</p>
+<p>​    可以不改变图片尺寸的情况下增大感受野，有利于图像分割任务</p>
+<p>• Multi-grid</p>
+<p>• ASPP</p>
+<p>• Backbone（ResNet / Xception）</p>
+<p>• 深度可分离卷积</p>
+<p>• CRF → Decoder</p>
+<p>• 消融实验</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/04/29/CV/Autodriving/DeepLab/" data-id="cko2b3cuh0001p4vc99x1fa4n" data-title="" class="article-share-link">Compartir</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-CV/Algorithm-Trick/CV Algorithm Trick II" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/04/29/CV/Algorithm-Trick/CV%20Algorithm%20Trick%20II/" class="article-date">
+  <time class="dt-published" datetime="2021-04-29T03:06:19.683Z" itemprop="datePublished">2021-04-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="CV-Algorithm-Trick-II"><a href="#CV-Algorithm-Trick-II" class="headerlink" title="CV Algorithm Trick II"></a>CV Algorithm Trick II</h1><h2 id="Summary-on-Regularization"><a href="#Summary-on-Regularization" class="headerlink" title="Summary on Regularization"></a>Summary on Regularization</h2><p>How to solve overfitting？</p>
+<h3 id="Data"><a href="#Data" class="headerlink" title="Data:"></a>Data:</h3><p> Data augmentation: complexity (color shifting, transform (affine, perspective)，cutmix,  cutout,  mixup, mosaic, random erasing..</p>
+<p> Increase quantity: get more data /more balanced</p>
+<h3 id="Label"><a href="#Label" class="headerlink" title="Label"></a>Label</h3><p> Smooth labeling </p>
+<p> Disturb label</p>
+<h3 id="Training"><a href="#Training" class="headerlink" title="Training"></a>Training</h3><p> Early stop</p>
+<p> Adversarial training</p>
+<h3 id="Network-Task"><a href="#Network-Task" class="headerlink" title="Network/Task:"></a>Network/Task:</h3><p> Simplify network structure </p>
+<p>Multi-Tasks  </p>
+<h3 id="Regularization"><a href="#Regularization" class="headerlink" title="Regularization:"></a>Regularization:</h3><p>L1/12 regularization </p>
+<p>将模型轻量化的方法有什么</p>
+<h2 id="I-Mathematical-Operation"><a href="#I-Mathematical-Operation" class="headerlink" title="I. Mathematical Operation"></a>I. Mathematical Operation</h2><h3 id="1-Winograd-2015-Lavin"><a href="#1-Winograd-2015-Lavin" class="headerlink" title="1. Winograd [2015, Lavin]"></a>1. Winograd [2015, Lavin]</h3><p>​    Winograd 最早是在1980年在数字信号处理领域提出了，用于处理一维的信号，2015年被提出可应用扩展在二维图像上。这个算法的主要思想就是替换操作：把一个复杂的运算用多个简单运算代替，如用多个加法代替乘法。</p>
+<h1 id="模型压缩的方法"><a href="#模型压缩的方法" class="headerlink" title="模型压缩的方法"></a>模型压缩的方法</h1><h2 id="1-未训练时的压缩"><a href="#1-未训练时的压缩" class="headerlink" title="1.未训练时的压缩"></a>1.未训练时的压缩</h2><p>​    修改为轻量级的backbone，如MobileNet、ShuffleNet。对比模型训练的acc和loss是否维持在可接受的水平。</p>
+<h2 id="2-训练好之后的压缩"><a href="#2-训练好之后的压缩" class="headerlink" title="2. 训练好之后的压缩"></a>2. 训练好之后的压缩</h2><h4 id="a-模型训练完成之后的裁剪"><a href="#a-模型训练完成之后的裁剪" class="headerlink" title="a. 模型训练完成之后的裁剪"></a>a. 模型训练完成之后的裁剪</h4><p>​    本质上是寻找某种策略，在减少某些weight的同时，尽量保持acc在可接受水平。</p>
+<p>​    可以置零的项：前向计算过程中的任意值，如weight、bias、feature map‘s pixel。</p>
+<p>​    如何置零？将哪些值置零？可否总结成规则策略？</p>
+<p>​    如何观察acc不变？可以做消融实验。消融实验的记录如下表格所示，没有打钩√的表示这个kernel的weight被置零了，控制变量比较消融后模型acc的变化，这样就能找到哪些kernel置零既能加快模型速度减少参数又能尽量维持acc。</p>
+<table>
+<thead>
+<tr>
+<th align="center">kernel1</th>
+<th align="center">kernel2</th>
+<th align="center">kernel3</th>
+<th align="center">ACC</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">√</td>
+<td align="center">√</td>
+<td align="center">√</td>
+<td align="center">90%</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center">√</td>
+<td align="center">√</td>
+<td align="center">88%</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center">√</td>
+<td align="center">85%</td>
+</tr>
+</tbody></table>
+<p>​    消融实验的维度：</p>
+<pre><code>1. 每个weight中的值，一般是设置threshold来判断是否置零。
+2. 每个kernel。
+3. 每组kernel...
+</code></pre>
+<p><img src="C:\Users\user\AppData\Roaming\Typora\typora-user-images\image-20210224143108958.png" alt="image-20210224143108958"></p>
+<p><img src="C:\Users\user\AppData\Roaming\Typora\typora-user-images\image-20210224143131588.png" alt="image-20210224143131588"></p>
+<p><img src="C:\Users\user\AppData\Roaming\Typora\typora-user-images\image-20210224143140588.png" alt="image-20210224143140588"></p>
+<h4 id="b-裁剪的方法—基于L1-norm的模型压缩"><a href="#b-裁剪的方法—基于L1-norm的模型压缩" class="headerlink" title="b. 裁剪的方法—基于L1 norm的模型压缩"></a>b. 裁剪的方法—基于L1 norm的模型压缩</h4><p>​    下图是基于L1 norm的模型压缩的原理思路。kernel matrix中，每一列代表一个filter，当某个filter被置零裁剪后，在卷积过后的下一层输出中，蓝色的那层feature map是不用计算的，于是会导致在再下一层的卷积运算中，所有filter的某层kernel，即下图第二个kernel matrix蓝色的那一行kernel，在卷积中是不用计算的，这使得最后输出的每张feature map中都有部分区域是不用计算的。这样就实现了只删除一次kernel matrix中的filter参数，却使得下两层卷积层的参数都减少了。</p>
+<p><img src="C:\Users\user\AppData\Roaming\Typora\typora-user-images\image-20210224144958353.png" alt="image-20210224144958353"></p>
+<p>​    最后，这篇文章的作者得出的结论是，裁剪m个filters，可以对第i层和第i+1层降低m/ni+1的计算量，n代表channel数。</p>
+<p>​    如果要对上图ni+2层的kernel matrix，即第二个kernel matrix也要进行裁剪的话，就会如下图所示。绿色那列的filter被裁剪后，输出的feature map对应的某层也是不用计算的。得出的结论是会将ni+1 x ni+2维度的kernel matrix的计算量减小成（ni+1 -1） x （ni+2 -1）。</p>
+<p><img src="C:\Users\user\AppData\Roaming\Typora\typora-user-images\image-20210224152438117.png" alt="image-20210224152438117"></p>
+<p>​    对于ResNet这个有shortcut结构的网络，在对kernel matrix进行裁剪的时候，也要考虑到shortcut和裁剪对模型参数计算共同的影响。</p>
+<p><img src="C:\Users\user\AppData\Roaming\Typora\typora-user-images\image-20210224152448268.png" alt="image-20210224152448268"></p>
+<h3 id="c-另一种模型压缩方法，按weight值Prune"><a href="#c-另一种模型压缩方法，按weight值Prune" class="headerlink" title="c. 另一种模型压缩方法，按weight值Prune"></a>c. 另一种模型压缩方法，按weight值Prune</h3><p>​    基于L1 norm的模型压缩是在每组kernel层面上进行Prune，而有一种按weight值Prune的方法叫《Learning both Weights and Connections of Efficient Neural Network》，原理是给kernel中的weight设置一个阈值，将低于阈值的weight置零来达到Prune的效果。</p>
+<h3 id="d-模型裁剪总结"><a href="#d-模型裁剪总结" class="headerlink" title="d. 模型裁剪总结"></a>d. 模型裁剪总结</h3><ol>
+<li>计算各层内各组卷积核的权重和S。</li>
+<li>把每层中的各个S在层内排序。</li>
+<li>在每个层中，Prune(裁剪)掉m个S值最小的卷积组，同时下一层中对应的卷积核也Prune掉。</li>
+</ol>
+<p>注：单独的置零裁剪无法加速计算，因为0还是会参与运算，可调用一些系数系数计算库进行加速。</p>
+<h2 id="Activation-Function"><a href="#Activation-Function" class="headerlink" title="Activation Function"></a>Activation Function</h2><h3 id="ReLU-Rethinking"><a href="#ReLU-Rethinking" class="headerlink" title="ReLU-Rethinking"></a>ReLU-Rethinking</h3><p>relu现在非常非常的常用，那它是不是就是最好的损失函数不需要再改良了呢？换句话说relu有没有什么缺点呢？</p>
+<p>a. relu 在0处不可导；</p>
+<p>b. 值只在0的一遍，在bp的时候会出现zigzag的情况，落在局部最优解风险更高；</p>
+<p>c. 在小于零的部分为0，一定会有信息损耗；</p>
+<h4 id="ReLU-Family"><a href="#ReLU-Family" class="headerlink" title="ReLU Family"></a>ReLU Family</h4><p>​    Leaky ReLU/PReLU，ELU,  CeLU,  SeLU…目标是不出现none-zero centered的情况。</p>
+<h3 id="Swish-—-Self-gated-activation-Function-损失函数"><a href="#Swish-—-Self-gated-activation-Function-损失函数" class="headerlink" title="Swish — Self-gated activation Function 损失函数"></a>Swish — Self-gated activation Function 损失函数</h3><p>​    Swish的数学表示为 𝑓(𝑥)=𝑥∙𝜎(𝑥)，其实就是x乘上Sigmoid函数。Swish的Self-gated activation的想法是受到了LSTM的启发。</p>
+<p>​    𝑓′𝑥=𝜎𝑥+𝑥∙𝜎𝑥∙1−𝜎𝑥=𝑥∙𝜎𝑥+𝜎𝑥1−𝑥∙𝜎𝑥=𝑓𝑥+𝜎𝑥∙(1−𝑓(𝑥))</p>
+<p>​    Swish的性质：a. 在正半轴是无边界的（Unbounded above），可以避免梯度饱和；b. 在负半轴是有边界的（Bounded below），并且趋向于0，有很强的正则化效果；c. 非单调函数，强非线性，提高网络拟合复杂数据的能力；d. 非常的平滑，处处连续可到，容易走到全局最优解。</p>
+<h3 id="Mish-可能是现在最好的损失函数"><a href="#Mish-可能是现在最好的损失函数" class="headerlink" title="Mish 可能是现在最好的损失函数"></a>Mish 可能是现在最好的损失函数</h3><p>Mish 的数学表达式为𝑓𝑥=𝑥∙𝑡𝑎𝑛ℎ(𝜍(𝑥))，其中 𝜍(𝑥)=𝑙𝑛(1+𝑒𝑥)—softplus。</p>
+<p>![](F:\blog\CV\Algorithm Trick\pics\mish-derivative.png)</p>
+<p>性质：a. 跟Swish有同样的效果，且在Swish效果不好的时候可能效果会更好；b. 比ReLU慢; c. 不能100%保证效果会好; d. 可以跟Ranger Optimizer一起运行;</p>
+<h2 id="Loss-Function"><a href="#Loss-Function" class="headerlink" title="Loss Function"></a>Loss Function</h2><h3 id="L1-Loss-MAE-Mean-Absolute-Error"><a href="#L1-Loss-MAE-Mean-Absolute-Error" class="headerlink" title="L1 Loss (MAE: Mean Absolute Error)"></a>L1 Loss (MAE: Mean Absolute Error)</h3><p>​    L1 Loss的主要问题为： 导数为常数，这会导致模型很难在高准确率的同时收敛，容易在最优解附近震荡。</p>
+<h3 id="L2-Loss-MSE-Mean-Squared-Error"><a href="#L2-Loss-MSE-Mean-Squared-Error" class="headerlink" title="L2 Loss (MSE: Mean Squared Error)"></a>L2 Loss (MSE: Mean Squared Error)</h3><p>​    L2 Loss的主要问题为：在训练开始的时候，导数会非常大，导致训练不稳定，容易迈出山谷，而在训练收敛得时候训练速度越来越慢。</p>
+<h3 id="Smooth-L1-Loss"><a href="#Smooth-L1-Loss" class="headerlink" title="Smooth L1 Loss"></a>Smooth L1 Loss</h3><p>​    将L1 Loss和L2 Loss结合，Smooth L1 Loss解决的L1 Loss 和 L2 Loss的问题。它很像1964年提出的HUber Loss。</p>
+<img src="F:\blog\CV\Algorithm Trick\pics\smooth-l1.png" style="zoom: 33%;" />
+
+<h3 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h3><p>​    L1 Loss、L2 Loss 、Smooth L1 Loss在目标检测中的问题：1. 它们在预测中，四元坐标是分别单独计算的；2. 由于坐标单独预测，所以它们预测出不同的bbox时有可能会产生相同的loss。</p>
+<h3 id="IoU-Loss"><a href="#IoU-Loss" class="headerlink" title="IoU Loss"></a>IoU Loss</h3><p>​    IoU Loss可以将四元坐标做统一预测，常用的IoU Loss一般已经不用ln函数了，直接为 - IoU 或者 1 - IoU。</p>
+<p>![](F:\blog\CV\Algorithm Trick\pics\iou-loss.png)</p>
+<p>​    IoU Loss 有两大问题。第一，如果预测出的bbox与ground truth不相交怎么办？这样不论两个框离得多远Loss都是1。如下图，明显左边的predicted bbox要比右边的好，但是它们Loss都是相等的，这很不合理。</p>
+<img src="F:\blog\CV\Algorithm Trick\pics\iou-problem.png" style="zoom:33%;" />
+
+<p>​    第二，如果bbox与ground truth相交，但是IoU值相等，也不能提供那个bbox更好地有效信息。如下图。</p>
+<img src="F:\blog\CV\Algorithm Trick\pics\iou-problem2.png" style="zoom:33%;" />
+
+<h3 id="GIoU-Loss"><a href="#GIoU-Loss" class="headerlink" title="GIoU Loss"></a>GIoU Loss</h3><p>​    GIoU Loss 解决了 IoU Loss 不相交计算问题，它的计算公式如下：</p>
+<img src="F:\blog\CV\Algorithm Trick\pics\giou-formula.png" style="zoom:33%;" />
+
+<p>​    用下图举例来解释这些公式。首先找到一个包含ground truth和predicted bbox的最小box，也就是找到这两个box中的最大和最小的坐标，如下图的蓝框。然后计算蓝色部分面积Ac。公式中的U等于两个框的面积和减去相交的面积，如下图二中黄的做斜杠的面积。Ac - U为蓝色矩形框中没有被两个框覆盖到的面积。GIoU就是IoU减去蓝色框中没有被两个框覆盖到的面积与蓝色框面积之比。GIoU Loss = 1 - GIoU。</p>
+<img src="F:\blog\CV\Algorithm Trick\pics\Giou-loss.png" style="zoom:33%;" />
+
+<p>​    GIoU Loss的问题是，有可能出现相交的面积相等但在不同位置的情况，如下图，三个框的位置计算的GIoU Loss 值是一样的。</p>
+<img src="F:\blog\CV\Algorithm Trick\pics\giou-problem.png" style="zoom:33%;" />
+
+<pre><code>### DIoU Loss
+</code></pre>
+<p>​    DIoU Loss添加了两个box的位置关系，可以解决这个问题。用两个box的中心距离d的平方除以两个box的对角线距离c的平方。这个值就是图中公式Rdiou，这是一个惩罚项，取值从0到趋向于1。DIoU Loss = 1 - IoU + Rdiou。</p>
+<p>![](F:\blog\CV\Algorithm Trick\pics\diou-loss.png)</p>
+<p>​    但是如果中点重合，但是Box大小相等但形状不一样，如下图，那DIoU就又无法表示这两种情况Loss的差别了。DIoU的作者提出了这样一个准则，Loss要考虑到相交面积，中心点距离和生成box的形状。DIoU的问题是没考虑到生成bbox的形状所导致的。</p>
+<h3 id="CIoU-Loss"><a href="#CIoU-Loss" class="headerlink" title="CIoU Loss"></a>CIoU Loss</h3><p>​    CIoU Loss是IoU Loss家族中比较完善地解决各种情况的损失函数。CIoU的惩罚项Rciou = Rdiou + av。如下图公式所示，v的值是ground truth和predicted bbox的arctan角度差的平方乘上4/pi的平方，可以认为这是个非严格normalize的常数，因为arctan取值为（-pi/2, pi/2)，平方后的倒数就是4/pi的平方。</p>
+<p>​    ![](F:\blog\CV\Algorithm Trick\pics\ciou-formula.png)</p>
+<p>​    a是v的权重，它可以调节距离和比例的重要程度。如上公式，当bbox–&gt;ground truth的时候， 1- IoU就会趋向于0，a和v就趋近于1，Loss中bbox形状比例就更重要；反之，Loss中bbox的距离更重要。</p>
+<p>​    CIoU Loss = DIoU Loss + av。它对模型的提升效果如下表。</p>
+<p>![](F:\blog\CV\Algorithm Trick\pics\ciou-imporve.png)</p>
+<h3 id="DIoU-NMS"><a href="#DIoU-NMS" class="headerlink" title="DIoU-NMS"></a>DIoU-NMS</h3><p>​    NMS的计算用到了IoU，DIoU-NMS就是在NMS算IoU的时候算一下DIoU的惩罚项Rdiou并减去，它的作用是当predicted Bbox离ground truth挺远的时候，保留它，近的就丢弃。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/04/29/CV/Algorithm-Trick/CV%20Algorithm%20Trick%20II/" data-id="cko2b3cut0007p4vcbj8a7hkv" data-title="" class="article-share-link">Compartir</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-hello-world" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/04/29/hello-world/" class="article-date">
+  <time class="dt-published" datetime="2021-04-29T02:04:08.297Z" itemprop="datePublished">2021-04-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2021/04/29/hello-world/">Hello World</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+
+<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/04/29/hello-world/" data-id="cko2awtyw0000w0vcd4zf7sl2" data-title="Hello World" class="article-share-link">Compartir</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+
+
+  <nav id="page-nav">
+    
+    <a class="extend prev" rel="prev" href="/">&laquo; Previo</a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+  </nav>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archivos</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Posts recientes</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/04/29/CV/YOLO/Yolo%E7%B3%BB%E5%88%97%E6%A3%80%E6%B5%8B%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/train/model-train/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/train/data-preprocessing/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/RCNN-family/RCNN%EF%BC%8CFast%20RCNN%EF%BC%8CFaster%20RCNN%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/facebagnet&attention/SENet/">(no title)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 Cheng Zixu<br>
+      Construido por <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

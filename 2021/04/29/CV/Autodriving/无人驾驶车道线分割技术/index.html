@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="无人驾驶车道线分割技术无人驾驶系统​    无人车驾驶系统的主要技术如下图，其中车道线分割属于感知系统中，使用相机传感器获取图像信息并使用图像分割技术做处理。图像分割也可以细分为语义分割、实例分割和全景分割等。车道线分割属于语义分割  数据集​    百度无人车测到线检测挑战赛 https:&#x2F;&#x2F;aistudio.baidu.com&#x2F;aistudio&#x2F;competition&#x2F;detail&#x2F;5 相关技">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://example.com/2021/04/29/CV/Autodriving/%E6%97%A0%E4%BA%BA%E9%A9%BE%E9%A9%B6%E8%BD%A6%E9%81%93%E7%BA%BF%E5%88%86%E5%89%B2%E6%8A%80%E6%9C%AF/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="无人驾驶车道线分割技术无人驾驶系统​    无人车驾驶系统的主要技术如下图，其中车道线分割属于感知系统中，使用相机传感器获取图像信息并使用图像分割技术做处理。图像分割也可以细分为语义分割、实例分割和全景分割等。车道线分割属于语义分割  数据集​    百度无人车测到线检测挑战赛 https:&#x2F;&#x2F;aistudio.baidu.com&#x2F;aistudio&#x2F;competition&#x2F;detail&#x2F;5 相关技">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2021/04/29/CV/Autodriving/%E6%97%A0%E4%BA%BA%E9%A9%BE%E9%A9%B6%E8%BD%A6%E9%81%93%E7%BA%BF%E5%88%86%E5%89%B2%E6%8A%80%E6%9C%AF/.%5Cimgs%5Csystem.png">
+<meta property="og:image" content="http://example.com/2021/04/29/CV/Autodriving/%E6%97%A0%E4%BA%BA%E9%A9%BE%E9%A9%B6%E8%BD%A6%E9%81%93%E7%BA%BF%E5%88%86%E5%89%B2%E6%8A%80%E6%9C%AF/.%5Cimgs%5Cbn.png">
+<meta property="og:image" content="http://example.com/2021/04/29/CV/Autodriving/%E6%97%A0%E4%BA%BA%E9%A9%BE%E9%A9%B6%E8%BD%A6%E9%81%93%E7%BA%BF%E5%88%86%E5%89%B2%E6%8A%80%E6%9C%AF/.%5Cimgs%5Cunpooling.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/bilinear.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/bicubic.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/transpose-convolution.png">
+<meta property="og:image" content="f:/blog/CV/Autodriving/imgs/transpose-convolution2.png">
+<meta property="article:published_time" content="2021-04-29T03:06:20.134Z">
+<meta property="article:modified_time" content="2021-03-31T06:42:24.777Z">
+<meta property="article:author" content="Cheng Zixu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/04/29/CV/Autodriving/%E6%97%A0%E4%BA%BA%E9%A9%BE%E9%A9%B6%E8%BD%A6%E9%81%93%E7%BA%BF%E5%88%86%E5%89%B2%E6%8A%80%E6%9C%AF/.%5Cimgs%5Csystem.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Buscar"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Buscar"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-CV/Autodriving/无人驾驶车道线分割技术" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2021/04/29/CV/Autodriving/%E6%97%A0%E4%BA%BA%E9%A9%BE%E9%A9%B6%E8%BD%A6%E9%81%93%E7%BA%BF%E5%88%86%E5%89%B2%E6%8A%80%E6%9C%AF/" class="article-date">
+  <time class="dt-published" datetime="2021-04-29T03:06:20.134Z" itemprop="datePublished">2021-04-29</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="无人驾驶车道线分割技术"><a href="#无人驾驶车道线分割技术" class="headerlink" title="无人驾驶车道线分割技术"></a>无人驾驶车道线分割技术</h1><h2 id="无人驾驶系统"><a href="#无人驾驶系统" class="headerlink" title="无人驾驶系统"></a>无人驾驶系统</h2><p>​    无人车驾驶系统的主要技术如下图，其中车道线分割属于感知系统中，使用相机传感器获取图像信息并使用图像分割技术做处理。图像分割也可以细分为语义分割、实例分割和全景分割等。车道线分割属于语义分割</p>
+<p><img src=".%5Cimgs%5Csystem.png"></p>
+<h2 id="数据集"><a href="#数据集" class="headerlink" title="数据集"></a>数据集</h2><p>​    百度无人车测到线检测挑战赛 <a target="_blank" rel="noopener" href="https://aistudio.baidu.com/aistudio/competition/detail/5">https://aistudio.baidu.com/aistudio/competition/detail/5</a></p>
+<h2 id="相关技术"><a href="#相关技术" class="headerlink" title="相关技术"></a>相关技术</h2><h3 id="FCN"><a href="#FCN" class="headerlink" title="FCN"></a>FCN</h3><h3 id="U-Net"><a href="#U-Net" class="headerlink" title="U-Net"></a>U-Net</h3><h3 id="DeepLab-v3"><a href="#DeepLab-v3" class="headerlink" title="DeepLab-v3+"></a>DeepLab-v3+</h3><h2 id="项目概述"><a href="#项目概述" class="headerlink" title="项目概述"></a>项目概述</h2><p>数据处理</p>
+<p>模型搭建</p>
+<p>训练框架搭建</p>
+<p>模型评估</p>
+<p>模型部署</p>
+<h2 id="CNN卷积神经网络"><a href="#CNN卷积神经网络" class="headerlink" title="CNN卷积神经网络"></a>CNN卷积神经网络</h2><h3 id="卷积输出维度计算公式"><a href="#卷积输出维度计算公式" class="headerlink" title="卷积输出维度计算公式"></a>卷积输出维度计算公式</h3><p>OutputSize = （InputSize + 2xPadding - KernelSize）/ Stride + 1</p>
+<h3 id="Pooling"><a href="#Pooling" class="headerlink" title="Pooling"></a>Pooling</h3><p>平均池化（Average Pooling）、最大池化（Max Pooling）、全局平均池化（Global Average Pooling）、全局最大池化（Global Max Pooling）。</p>
+<p>平均池化是线性的，最大池化是非线性的（能增加网络拟合程度、以及不变性）。</p>
+<p>全局平均池化通常用在网络分类的最后一层，因为最后一层做分类时希望提取全局信息并且信息损失最少。</p>
+<h3 id="激活函数"><a href="#激活函数" class="headerlink" title="激活函数"></a>激活函数</h3><p>ReLU、PReLU（a为可学习的参数）/Leaky ReLU、ELU</p>
+<h3 id="批量归一化（Batch-Normalization）"><a href="#批量归一化（Batch-Normalization）" class="headerlink" title="批量归一化（Batch Normalization）"></a>批量归一化（Batch Normalization）</h3><p>BN层将输入的batch在channel维度做均值为0方差为1的归一化，并计算batch的移动平均均值和平均方差，并在训练过程中不断更新。移动均值和方差是带权重的均值，类似于一个滑动窗口，当前的均值权重一般更大。</p>
+<p>一般会对归一化后的结果做个线性变换（scale and shift），即乘上一个γ加上一个β，如下公式，能给网络一定的自由度能使BN发挥出效果。</p>
+<p><img src=".%5Cimgs%5Cbn.png"></p>
+<p>训练时采用当前均值方差，并更新移动平均的均值和方差，预测是采用移动平均的均值和方差。</p>
+<h2 id="上采样技术"><a href="#上采样技术" class="headerlink" title="上采样技术"></a>上采样技术</h2><h3 id="Unpooling"><a href="#Unpooling" class="headerlink" title="Unpooling"></a>Unpooling</h3><p>Zero Unpooling 就是进行间隔插0进行上采样，原数值的相对位置不变。</p>
+<p>Max Unpooling 是在做MaxPooling的时候记录下Max值的位置，在上采样的时候恢复这些值的位置，其余的位置补0插值。</p>
+<p><img src=".%5Cimgs%5Cunpooling.png"></p>
+<p>UnPooling在实际项目中非常少用，因为插入了太多的无效信息。</p>
+<h3 id="Interpolation-插值"><a href="#Interpolation-插值" class="headerlink" title="Interpolation 插值"></a>Interpolation 插值</h3><p>Nearest Interpolation 最近邻插值，就是对插入点赋值其距离最近的原始点的数值。</p>
+<p>Bilinear Interpolation 双线性插值，如下图，就是利用插入点周围4个点的坐标，先进行x轴的线性计算，以距离为权重计算出x轴上R1,R2两个点的值，再用这两个点的值进行y轴的线性计算，得到插入点P的值。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\bilinear.png"></p>
+<p>Bicubic Interpolation 双立方插值，如下公式，x和y分别从0次幂到3次幂，所以总共会有16个方程，要求解16个未知数aij，将P点坐标的周围4个点坐标，以及每个点的x方向、y方向、xy方向的梯度共16组（x，y）带入方程解出16个未知数aij后，便可依照公式计算出P点的值。也可以通过卷积的方法计算aij。</p>
+<img src="F:\blog\CV\Autodriving\imgs\bicubic.png" style="zoom:25%;" />
+
+<h3 id="Transposed-Convolution-转置卷积"><a href="#Transposed-Convolution-转置卷积" class="headerlink" title="Transposed Convolution 转置卷积"></a>Transposed Convolution 转置卷积</h3><p>转置卷积也叫反卷积（Deconvolution），是类似于卷积反运算的运算。首先，现将卷积运算转为矩阵的表达形式，如下图，将右边输入的4x4的feature map拉伸成一维，根据卷积运算和矩阵运算的原理，可以将卷积核转为下边4x16维的矩阵，运算的得到的结果经过reshape后与卷积运算结果相同。</p>
+<p><img src="F:\blog\CV\Autodriving\imgs\transpose-convolution.png"></p>
+<p>转置卷积就是将上图中代表卷积运算的4x16的矩阵进行转置，然后用转置的矩阵，对输出维度的feature map拉伸成1维后进行运算，运算结果reshape后得到与输入的维度相同，如下图。</p>
+<img src="F:\blog\CV\Autodriving\imgs\transpose-convolution2.png" style="zoom: 67%;" />
+
+<p>转置卷积保持了连接关系，但是它只恢复了feature map的形状，不回复原来feature map的数值，它更多的是做为一种上采样方法。转置卷积和卷积的反向传播在数学上是等价的，因此也可以用卷积来实现转置卷积，实现的方法可以参考<a target="_blank" rel="noopener" href="https://github.com/vdumoulin/conv_arithmetic">用卷积实现转置卷积方法</a>，主要是通过卷积和转置卷积中padding和stride的对应关系来实现。</p>
+<p><strong>有空再仔细补转置卷积的理论。</strong></p>
+<p>卷积特征图大小计算公式</p>
+<p>O = (I + 2P – K) / S + 1</p>
+<p>I = (O – 1) * S + K – 2P</p>
+<p>转置卷积特征图大小计算公式</p>
+<p>O = (I – 1) * S + K – 2P</p>
+<h2 id="全卷积网络FCN"><a href="#全卷积网络FCN" class="headerlink" title="全卷积网络FCN"></a>全卷积网络FCN</h2><p>参考我的文章<a href="./FCn.md">FCN</a>。</p>
+<h2 id="U-Net-1"><a href="#U-Net-1" class="headerlink" title="U-Net"></a>U-Net</h2><p>参考我的文章<a href="./Unet.md">Unet</a>。</p>
+<h2 id="DeepLab-v3-1"><a href="#DeepLab-v3-1" class="headerlink" title="DeepLab-v3+"></a>DeepLab-v3+</h2>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2021/04/29/CV/Autodriving/%E6%97%A0%E4%BA%BA%E9%A9%BE%E9%A9%B6%E8%BD%A6%E9%81%93%E7%BA%BF%E5%88%86%E5%89%B2%E6%8A%80%E6%9C%AF/" data-id="cko2b3cup0006p4vc5yoq6dim" data-title="" class="article-share-link">Compartir</a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/04/29/CV/face-recognize/FACE%20EMBEDDING/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Nuevo</strong>
+      <div class="article-nav-title">
+        
+          (no title)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/04/29/CV/Autodriving/Unet/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Viejo</strong>
+      <div class="article-nav-title"></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archivos</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2021/04/">April 2021</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Posts recientes</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2021/04/29/CV/YOLO/Yolo%E7%B3%BB%E5%88%97%E6%A3%80%E6%B5%8B%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/train/model-train/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/train/data-preprocessing/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/RCNN-family/RCNN%EF%BC%8CFast%20RCNN%EF%BC%8CFaster%20RCNN%E7%AE%97%E6%B3%95%E5%8E%9F%E7%90%86/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2021/04/29/CV/facebagnet&attention/SENet/">(no title)</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2021 Cheng Zixu<br>
+      Construido por <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
